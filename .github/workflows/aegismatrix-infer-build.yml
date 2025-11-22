@@ -119,7 +119,7 @@ jobs:
             
             # Push changes
             echo "🚀 Pushing to $BRANCH..."
-            git pull --rebase origin "$BRANCH"
+            git pull --rebase --autostash origin "$BRANCH"
             if git push origin "$BRANCH"; then
               echo "✅ Successfully pushed to $BRANCH"
               echo "changed=true" >> $GITHUB_OUTPUT
