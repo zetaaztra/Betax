@@ -327,6 +327,10 @@ def main():
     # Train magnitude
     train_direction_magnitude(X, y_points)
     
+    # Save scaler
+    joblib.dump(scaler, MODEL_DIR / "direction_scaler.pkl")
+    logger.info(f"✓ Scaler saved: {MODEL_DIR / 'direction_scaler.pkl'}")
+
     logger.info("=" * 60)
     logger.info("✓ Direction training complete!")
     logger.info("=" * 60)

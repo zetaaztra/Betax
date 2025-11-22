@@ -17,17 +17,26 @@ from config import SELLER_EXPIRY_HORIZON_DAYS, SAFE_RANGE_MULTIPLIER
 logger = logging.getLogger(__name__)
 
 
+def load_models():
+    """
+    Load pre-trained seller models.
+    
+    Returns:
+        Tuple of (trap_model, regime_model, breach_model)
+    """
+    try:
+        trap_model = joblib.load(MODEL_DIR / "seller_trap.pkl")
+        regime_model = joblib.load(MODEL_DIR / "seller_regime.pkl")
+        breach_model = joblib.load(MODEL_DIR / "seller_breach.pkl")
+        return trap_model, regime_model, breach_model
+    except Exception as e:
+        logger.error(f"Error loading seller models: {e}")
+        return None, None, None
+
+
 def compute_safe_range(spot: float, vol: float, horizon_days: int = SELLER_EXPIRY_HORIZON_DAYS) -> dict:
     """
     Compute statistically conservative safe range band.
-    
-    Args:
-        spot: Current spot price
-        vol: Annualized volatility
-        horizon_days: Days to expiry horizon
-        
-    Returns:
-        Dict with lower, upper, horizon_days
     """
     T = horizon_days / 252.0
     expected_pct_move = vol * math.sqrt(T)
@@ -47,17 +56,10 @@ def compute_safe_range(spot: float, vol: float, horizon_days: int = SELLER_EXPIR
 def compute_max_pain_zone(features_df) -> dict:
     """
     Approximate max pain zone from returns distribution.
-    
-    Args:
-        features_df: Feature DataFrame
-        
-    Returns:
-        Dict with lower, upper, confidence
     """
     close = features_df["Close"].iloc[-1]
     returns = features_df["ret_1d"].dropna()
     
-    # Use mode-like approximation
     hist, edges = np.histogram(returns, bins=50)
     mode_idx = np.argmax(hist)
     mode_return = (edges[mode_idx] + edges[mode_idx + 1]) / 2
@@ -73,61 +75,53 @@ def compute_max_pain_zone(features_df) -> dict:
     }
 
 
-def compute_vol_trap_risk(features_df) -> dict:
+def compute_vol_trap_risk(features_df, model=None) -> dict:
     """
     IV vs RV: high IV relative to RV = trap risk.
-    
-    Args:
-        features_df: Feature DataFrame
-        
-    Returns:
-        Dict with score, label, iv_percentile, rv_percentile
     """
     if features_df is None or len(features_df) == 0:
-        logger.warning("Empty features_df, returning default trap risk")
-        return {
-            "score": 0.5,
-            "label": "MEDIUM",
-            "iv_percentile": 0.5,
-            "rv_percentile": 0.5
-        }
+        return {"score": 0.5, "label": "MEDIUM", "iv_percentile": 0.5, "rv_percentile": 0.5}
     
-    # IV proxy = last VIX level
+    # Calculate percentiles for display regardless of model
     iv_level = features_df["Close_vix"].iloc[-1] if "Close_vix" in features_df.columns else 15
     rv_level = features_df["vol_20d"].iloc[-1] * 100 if "vol_20d" in features_df.columns else 15
-    
-    # Percentiles
     iv_series = features_df["Close_vix"].tail(252) if "Close_vix" in features_df.columns else pd.Series([15] * 252)
     rv_series = (features_df["vol_20d"].tail(252) * 100) if "vol_20d" in features_df.columns else pd.Series([15] * 252)
-    
     iv_pct = (iv_level >= iv_series.values).sum() / len(iv_series)
     rv_pct = (rv_level >= rv_series.values).sum() / len(rv_series)
-    
-    trap_raw = iv_pct - rv_pct
-    score = np.clip(trap_raw / 2 + 0.5, 0, 1)
-    
-    label = "LOW" if score < 0.33 else "MEDIUM" if score < 0.67 else "HIGH"
-    
-    return {
-        "score": float(score),
-        "label": label,
-        "iv_percentile": float(iv_pct),
-        "rv_percentile": float(rv_pct)
-    }
+
+    if model is None:
+        # Fallback heuristic
+        trap_raw = iv_pct - rv_pct
+        score = np.clip(trap_raw / 2 + 0.5, 0, 1)
+        label = "LOW" if score < 0.33 else "MEDIUM" if score < 0.67 else "HIGH"
+        return {"score": float(score), "label": label, "iv_percentile": float(iv_pct), "rv_percentile": float(rv_pct)}
+
+    try:
+        numeric_cols = features_df.select_dtypes(include=[np.number]).columns
+        X = features_df[numeric_cols].drop(columns=['label', 'target', 'return'], errors='ignore').values.astype(np.float32)
+        last_row = X[-1].reshape(1, -1)
+        
+        # Predict trap probability (class 1)
+        score = float(model.predict_proba(last_row)[0][1])
+        label = "LOW" if score < 0.33 else "MEDIUM" if score < 0.67 else "HIGH"
+        
+        return {
+            "score": score,
+            "label": label,
+            "iv_percentile": float(iv_pct),
+            "rv_percentile": float(rv_pct)
+        }
+    except Exception as e:
+        logger.error(f"Trap prediction failed: {e}")
+        return {"score": 0.5, "label": "MEDIUM", "iv_percentile": 0.5, "rv_percentile": 0.5}
 
 
 def compute_skew_pressure(features_df) -> dict:
     """
     Asymmetry of returns: downside vs upside.
-    
-    Args:
-        features_df: Feature DataFrame
-        
-    Returns:
-        Dict with put_skew, call_skew, net_skew
     """
     returns = features_df["ret_1d"].tail(60).dropna()
-    
     downside_tail = returns[returns < 0].mean() if (returns < 0).any() else 0
     upside_tail = returns[returns > 0].mean() if (returns > 0).any() else 0
     
@@ -145,76 +139,107 @@ def compute_skew_pressure(features_df) -> dict:
     }
 
 
-def compute_expiry_stress(features_df) -> dict:
+def compute_expiry_stress(features_df, model=None) -> dict:
     """
     Stress score based on vol regime, trap, and time.
-    
-    Args:
-        features_df: Feature DataFrame
-        
-    Returns:
-        Dict with score, label
     """
-    vol = features_df["vol_20d"].iloc[-1] if "vol_20d" in features_df.columns else 0.01
-    trap_score = compute_vol_trap_risk(features_df)["score"]
-    
-    # Normalize vol
-    normalized_vol = min(1.0, vol / 0.03)
-    
-    # Expiry stress composite
-    stress = 0.6 * trap_score + 0.4 * normalized_vol
-    stress = np.clip(stress, 0, 1)
-    
-    label = "CALM" if stress < 0.33 else "CAUTION" if stress < 0.67 else "HOSTILE"
-    
-    return {
-        "score": float(stress),
-        "label": label
-    }
+    if model is None or features_df is None or len(features_df) == 0:
+        # Fallback
+        vol = features_df["vol_20d"].iloc[-1] if "vol_20d" in features_df.columns else 0.01
+        trap_score = compute_vol_trap_risk(features_df)["score"]
+        normalized_vol = min(1.0, vol / 0.03)
+        stress = 0.6 * trap_score + 0.4 * normalized_vol
+        stress = np.clip(stress, 0, 1)
+        label = "CALM" if stress < 0.33 else "CAUTION" if stress < 0.67 else "HOSTILE"
+        return {"score": float(stress), "label": label}
+
+    try:
+        # We use the regime model as a proxy for stress? 
+        # Or did we train a stress model?
+        # train_seller.py trains: trap, regime, breach.
+        # It does NOT train a 'stress' model.
+        # So we should use the Regime model to inform stress.
+        
+        numeric_cols = features_df.select_dtypes(include=[np.number]).columns
+        X = features_df[numeric_cols].drop(columns=['label', 'target', 'return'], errors='ignore').values.astype(np.float32)
+        last_row = X[-1].reshape(1, -1)
+        
+        # Predict Regime: 0=Low, 1=Med, 2=High
+        regime_probs = model.predict_proba(last_row)[0]
+        # Weighted stress score: 0*p0 + 0.5*p1 + 1.0*p2
+        stress = 0.0 * regime_probs[0] + 0.5 * regime_probs[1] + 1.0 * regime_probs[2]
+        
+        label = "CALM" if stress < 0.33 else "CAUTION" if stress < 0.67 else "HOSTILE"
+        return {"score": float(stress), "label": label}
+        
+    except Exception as e:
+        logger.error(f"Stress/Regime prediction failed: {e}")
+        return {"score": 0.5, "label": "CAUTION"}
 
 
-def compute_breach_probability_curve(spot: float, vol: float, horizon_days: int = 30) -> list[dict]:
+def compute_breach_probability_curve(spot: float, vol: float, horizon_days: int = 30, model=None, features_df=None) -> list[dict]:
     """
     Probability of breaching various distance levels.
-    
-    Args:
-        spot: Current spot
-        vol: Annualized volatility
-        horizon_days: Horizon
-        
-    Returns:
-        List of {"distance": int, "probability": float}
     """
-    T = horizon_days / 252.0
-    sigma_T = vol * math.sqrt(T)
-    
-    distances = [100, 200, 300, 400]
-    results = []
-    
-    for dist in distances:
-        dist_pct = dist / spot
-        z = dist_pct / (sigma_T + 1e-6)
-        prob = 2 * (1 - norm.cdf(z))
-        prob = np.clip(prob, 0, 1)
+    # If no model, use theoretical
+    if model is None or features_df is None:
+        T = horizon_days / 252.0
+        sigma_T = vol * math.sqrt(T)
+        distances = [100, 200, 300, 400]
+        results = []
+        for dist in distances:
+            dist_pct = dist / spot
+            z = dist_pct / (sigma_T + 1e-6)
+            prob = 2 * (1 - norm.cdf(z))
+            prob = np.clip(prob, 0, 1)
+            results.append({"distance": int(dist), "probability": float(prob)})
+        return results
+
+    try:
+        # The model predicts binary breach of a specific range (SAFE_RANGE_MULTIPLIER).
+        # It doesn't predict curve directly.
+        # But we can use the probability of breach as a base scaler for the theoretical curve.
         
-        results.append({
-            "distance": int(dist),
-            "probability": float(prob)
-        })
-    
-    return results
+        numeric_cols = features_df.select_dtypes(include=[np.number]).columns
+        X = features_df[numeric_cols].drop(columns=['label', 'target', 'return'], errors='ignore').values.astype(np.float32)
+        last_row = X[-1].reshape(1, -1)
+        
+        model_prob = float(model.predict_proba(last_row)[0][1])
+        
+        # Adjust theoretical curve using model probability
+        # If model says high prob, we shift curve up.
+        
+        T = horizon_days / 252.0
+        sigma_T = vol * math.sqrt(T)
+        distances = [100, 200, 300, 400]
+        results = []
+        
+        # Theoretical base prob for the trained range (1.5 std dev)
+        # 1.5 sigma breach prob is approx 13% (2-sided)
+        theoretical_base = 2 * (1 - norm.cdf(1.5))
+        
+        # Adjustment factor
+        adj_factor = model_prob / (theoretical_base + 1e-6)
+        adj_factor = np.clip(adj_factor, 0.5, 2.0) # Limit adjustment
+        
+        for dist in distances:
+            dist_pct = dist / spot
+            z = dist_pct / (sigma_T + 1e-6)
+            prob = 2 * (1 - norm.cdf(z))
+            prob = prob * adj_factor
+            prob = np.clip(prob, 0, 1)
+            results.append({"distance": int(dist), "probability": float(prob)})
+            
+        return results
+        
+    except Exception as e:
+        logger.error(f"Breach curve prediction failed: {e}")
+        return []
 
 
 def compute_seller_flag(trap_score: dict, expiry_stress: dict) -> dict:
     """
     Derive seller flag from sub-components.
-    
-    Args:
-        trap_score: From compute_vol_trap_risk
-        expiry_stress: From compute_expiry_stress
-        
-    Returns:
-        Dict with label, color, reasons
     """
     reasons = []
     
