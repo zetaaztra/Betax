@@ -76,6 +76,10 @@ def build_direction_features(nifty: pd.DataFrame, vix: pd.DataFrame) -> pd.DataF
     vix_cols = {col: f"vix_{col}" for col in vix.columns if col != "Close"}
     vix = vix.rename(columns=vix_cols)
     
+    # Normalize indices to ensure merge works (remove timezone if present)
+    nifty.index = nifty.index.normalize().tz_localize(None)
+    vix.index = vix.index.normalize().tz_localize(None)
+    
     # Merge on date
     df = nifty.join(vix[["Close", "vix_vol_10d", "vix_vol_20d", "vix_vol_60d"]], rsuffix="_vix")
     df = df.dropna()

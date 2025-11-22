@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-11-22T11:15:04.968955Z",
+  "generated_at": "2025-11-22T11:52:16.316922Z",
   "market": {
     "spot": 26068.150390625,
     "spot_change": -124.0,
@@ -13,49 +13,49 @@
     "today": {
       "direction": "NEUTRAL",
       "expected_move_points": 30.0,
-      "conviction": 0.025,
-      "intraday_volatility_score": 0.0,
-      "last_update": "2025-11-22T11:15:04.928638Z"
+      "conviction": 0.09471122423463385,
+      "intraday_volatility_score": 0.006788581229909333,
+      "last_update": "2025-11-22T11:52:16.274793Z"
     },
     "horizons": {
       "t1": {
         "label": "Tomorrow",
-        "direction": "NEUTRAL",
-        "expected_move_points": 50.0,
-        "conviction": 0.5
+        "direction": "DOWN",
+        "expected_move_points": 160.60585021972656,
+        "conviction": 0.34
       },
       "t3": {
         "label": "Next 3 Days",
-        "direction": "NEUTRAL",
-        "expected_move_points": 50.0,
-        "conviction": 0.5
+        "direction": "DOWN",
+        "expected_move_points": 278.1774925733635,
+        "conviction": 0.34
       },
       "t5": {
         "label": "This Week",
-        "direction": "NEUTRAL",
-        "expected_move_points": 50.0,
-        "conviction": 0.5
+        "direction": "DOWN",
+        "expected_move_points": 359.12559867545815,
+        "conviction": 0.34
       },
       "t10": {
         "label": "Next Week",
-        "direction": "NEUTRAL",
-        "expected_move_points": 50.0,
-        "conviction": 0.5
+        "direction": "DOWN",
+        "expected_move_points": 507.88029224219014,
+        "conviction": 0.34
       },
       "t20": {
         "label": "This Month",
-        "direction": "NEUTRAL",
-        "expected_move_points": 50.0,
-        "conviction": 0.5
+        "direction": "DOWN",
+        "expected_move_points": 718.2511973509163,
+        "conviction": 0.34
       },
       "t40": {
         "label": "Next Month",
-        "direction": "NEUTRAL",
-        "expected_move_points": 50.0,
-        "conviction": 0.5
+        "direction": "DOWN",
+        "expected_move_points": 1015.7605844843803,
+        "conviction": 0.34
       }
     },
-    "risk_score": 0.1054792396924587
+    "risk_score": 0.21155725750201385
   },
   "seller": {
     "safe_range": {
@@ -69,8 +69,8 @@
       "confidence": 0.6
     },
     "trap": {
-      "score": 0.8734803199768066,
-      "label": "HIGH",
+      "score": 0.43952736258506775,
+      "label": "MEDIUM",
       "iv_percentile": 0.48412698412698413,
       "rv_percentile": 0.06349206349206349
     },
@@ -86,15 +86,15 @@
     "breach_probabilities": [
       {
         "distance": 100,
-        "probability": 0.03404105999312357
+        "probability": 0.03068560392620839
       },
       {
         "distance": 200,
-        "probability": 3.6385578803255214e-06
+        "probability": 3.279902153481922e-06
       },
       {
         "distance": 300,
-        "probability": 1.6280310433103296e-12
+        "probability": 1.4675546467907913e-12
       },
       {
         "distance": 400,
@@ -102,43 +102,41 @@
       }
     ],
     "seller_flag": {
-      "label": "CAUTION",
-      "color": "AMBER",
-      "reasons": [
-        "HIGH_TRAP"
-      ]
+      "label": "FAVOURABLE",
+      "color": "GREEN",
+      "reasons": []
     },
     "historical_hit_rate": 0.72
   },
   "buyer": {
     "breakout_today": {
-      "score": 0.0073814960196614265,
+      "score": 0.007094432599842548,
       "label": "LOW"
     },
     "breakout_next": [
       {
         "day_offset": 1,
-        "score": 0.006274271616712212,
+        "score": 0.006030267709866166,
         "label": "LOW"
       },
       {
         "day_offset": 2,
-        "score": 0.006274271616712212,
+        "score": 0.006030267709866166,
         "label": "LOW"
       },
       {
         "day_offset": 3,
-        "score": 0.004428897611796856,
+        "score": 0.0042566595599055285,
         "label": "LOW"
       },
       {
         "day_offset": 4,
-        "score": 0.004428897611796856,
+        "score": 0.0042566595599055285,
         "label": "LOW"
       },
       {
         "day_offset": 5,
-        "score": 0.003321673208847642,
+        "score": 0.003192494669929147,
         "label": "LOW"
       }
     ],
@@ -153,11 +151,19 @@
     "gamma_windows": [
       {
         "window": "09:45-10:15",
-        "score": 0.5
+        "score": 0.9662069330757987
+      },
+      {
+        "window": "10:15-10:45",
+        "score": 0.47920382834889397
+      },
+      {
+        "window": "14:30-15:15",
+        "score": 1.0
       }
     ],
     "theta_edge": {
-      "score": 0.20896939933300018,
+      "score": 0.21607407927513123,
       "label": "DONT_WASTE_PREMIUM"
     },
     "regime": "MEAN_REVERT",

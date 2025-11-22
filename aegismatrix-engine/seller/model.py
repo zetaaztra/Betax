@@ -145,7 +145,10 @@ def compute_expiry_stress(features_df, model=None) -> dict:
     """
     Stress score based on vol regime, trap, and time.
     """
-    if model is None or features_df is None or len(features_df) == 0:
+    if features_df is None or len(features_df) == 0:
+        return {"score": 0.5, "label": "CAUTION"}
+        
+    if model is None:
         # Fallback
         vol = features_df["vol_20d"].iloc[-1] if "vol_20d" in features_df.columns else 0.01
         trap_score = compute_vol_trap_risk(features_df)["score"]
