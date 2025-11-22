@@ -6,8 +6,11 @@ import numpy as np
 import logging
 import sys
 from pathlib import Path
+import joblib
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from config import MODEL_DIR
 
 logger = logging.getLogger(__name__)
 
