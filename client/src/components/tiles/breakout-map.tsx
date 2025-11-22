@@ -13,9 +13,12 @@ export function BreakoutMap({ data, testId }: BreakoutMapProps) {
 
   // Convert 0-1 scores to 0-100 for display
   const scores = breakoutData.map(d => d.score * 100);
-  // Use a lower floor for max score (e.g. 40) so that low scores still show visible bars
-  const maxScore = Math.max(...scores, 40);
-  const minScore = Math.min(...scores, 0);
+
+  // Dynamic scaling: find the max score in the dataset to scale bars relatively
+  // We use a minimum denominator of 1 to avoid division by zero, but remove the hard floor of 40
+  // This ensures that even if all scores are low (e.g. 0.6), the highest one will be 100% height
+  const maxScore = Math.max(...scores);
+  const minScore = 0;
   const range = maxScore - minScore || 1;
 
   return (
@@ -48,7 +51,7 @@ export function BreakoutMap({ data, testId }: BreakoutMapProps) {
           {scores.map((score, i) => (
             <div key={i} className="text-center">
               <div className={`font-semibold font-mono ${score > 65 ? "text-spike" : "text-foreground"}`}>
-                {Math.round(score)}
+                {score.toFixed(1)}
               </div>
             </div>
           ))}

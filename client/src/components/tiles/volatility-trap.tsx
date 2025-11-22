@@ -1,19 +1,19 @@
 import { TileWrapper } from "./tile-wrapper";
-import { SellerData } from "@shared/schema";
+import { SellerBlock } from "@/lib/aegis-data";
 import { Zap } from "lucide-react";
 
 interface VolatilityTrapProps {
-  data: SellerData;
+  data: SellerBlock;
   testId: string;
 }
 
 const helpText = "Volatility Trap measures risk of sudden IV spike after selling options. Low (<30): premiums may be too thin but safe. Medium (30-60): balanced risk-reward. High (>60): tempting premiums but dangerous - IV could explode causing mark-to-market losses before expiry. Consider this before selling in apparently 'calm' markets.";
 
 export function VolatilityTrap({ data, testId }: VolatilityTrapProps) {
-  const { score, level } = data.trap;
-  
+  const { score, label } = data.trap;
+
   const getDetails = () => {
-    if (level === "LOW") {
+    if (label === "LOW") {
       return {
         color: "text-bullish",
         bg: "bg-bullish/10",
@@ -21,7 +21,7 @@ export function VolatilityTrap({ data, testId }: VolatilityTrapProps) {
         icon: <Zap className="h-5 w-5 text-bullish" />,
       };
     }
-    if (level === "MEDIUM") {
+    if (label === "MEDIUM") {
       return {
         color: "text-neutral",
         bg: "bg-neutral/10",
@@ -67,7 +67,7 @@ export function VolatilityTrap({ data, testId }: VolatilityTrapProps) {
             <div className="flex-1 bg-bearish/30" />
           </div>
           <div className="relative h-1">
-            <div 
+            <div
               className="absolute w-0.5 h-4 bg-foreground rounded-full -top-1.5"
               style={{ left: `${score}%` }}
             />

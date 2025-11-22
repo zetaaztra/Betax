@@ -180,86 +180,206 @@ def _fetch_yahoo_api_data(
     return pd.DataFrame()
 
 
-def get_daily_history(symbol: str, years: int = LOOKBACK_YEARS) -> pd.DataFrame:
+def get_daily_history(symbol: str, years: int = LOOKBACK_YEARS, force_refresh: bool = False) -> pd.DataFrame:
     """
     Fetch daily OHLCV history for a symbol.
-    Tries direct API first, falls back to yfinance.
+    Checks local CSV cache first. If cache is stale or missing, fetches from API and updates cache.
     
     Args:
         symbol: Ticker symbol (e.g., "^NSEI")
         years: Lookback period in years
+        force_refresh: If True, ignore cache and force API fetch
         
     Returns:
         DataFrame with OHLCV data, sorted by date
     """
+    # Ensure data directory exists
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    
+    # Sanitize symbol for filename
+    safe_symbol = symbol.replace("^", "").replace(":", "_")
+    cache_path = DATA_DIR / f"{safe_symbol}_daily.csv"
+    
+    cached_df = pd.DataFrame()
+    cache_valid = False
+    
+    # Try to load from cache
+    if cache_path.exists() and not force_refresh:
+        try:
+            cached_df = pd.read_csv(cache_path, index_col=0, parse_dates=True)
+            if not cached_df.empty:
+                last_date = cached_df.index[-1].date()
+                today = datetime.now().date()
+                
+                # If data is from today, we consider it fresh enough
+                # (For a real production system, we'd check market close time, but this is sufficient)
+                if last_date >= today:
+                    logger.info(f"Cache hit for {symbol}: Data up to {last_date} is fresh.")
+                    cache_valid = True
+                else:
+                    logger.info(f"Cache stale for {symbol}: Last date {last_date}, today {today}. Will try to update.")
+        except Exception as e:
+            logger.warning(f"Failed to read cache for {symbol}: {e}")
+            
+    if cache_valid:
+        return cached_df
+
+    # If we are here, we need to fetch data (either no cache, stale cache, or force_refresh)
     end = datetime.today()
     start = end - timedelta(days=365 * years)
     
     logger.info(f"Fetching daily history for {symbol} from {start.date()} to {end.date()}")
     
-    # Try direct API first
-    df = _fetch_yahoo_api_data(symbol, start_date=start, end_date=end, interval="1d")
-    if len(df) > 0:
-        return df
+    fetched_df = pd.DataFrame()
+    fetch_success = False
     
-    # Fallback to yfinance
+    # Try direct API first
     try:
-        logger.info(f"Falling back to yfinance for {symbol}")
-        df = yf.download(symbol, start=start, end=end, progress=False, timeout=30)
-        
-        # Handle MultiIndex columns (yfinance update)
-        if isinstance(df.columns, pd.MultiIndex):
-            df.columns = df.columns.get_level_values(0)
-            
-        df = df.dropna()
-        logger.info(f"Downloaded {len(df)} daily candles for {symbol} via yfinance")
-        return df
+        fetched_df = _fetch_yahoo_api_data(symbol, start_date=start, end_date=end, interval="1d")
+        if not fetched_df.empty:
+            fetch_success = True
     except Exception as e:
-        logger.error(f"Error fetching {symbol}: {e}")
-        raise
+        logger.warning(f"Direct API fetch failed for {symbol}: {e}")
+
+    # Fallback to yfinance if direct API failed
+    if not fetch_success:
+        try:
+            logger.info(f"Falling back to yfinance for {symbol}")
+            fetched_df = yf.download(symbol, start=start, end=end, progress=False, timeout=30)
+            
+            # Handle MultiIndex columns (yfinance update)
+            if isinstance(fetched_df.columns, pd.MultiIndex):
+                fetched_df.columns = fetched_df.columns.get_level_values(0)
+                
+            fetched_df = fetched_df.dropna()
+            if not fetched_df.empty:
+                fetch_success = True
+                logger.info(f"Downloaded {len(fetched_df)} daily candles for {symbol} via yfinance")
+        except Exception as e:
+            logger.error(f"Error fetching {symbol} via yfinance: {e}")
+
+    # Decide what to return
+    if fetch_success and not fetched_df.empty:
+        # Save to cache
+        try:
+            fetched_df.to_csv(cache_path)
+            logger.info(f"Saved {len(fetched_df)} rows to cache: {cache_path}")
+        except Exception as e:
+            logger.error(f"Failed to save cache for {symbol}: {e}")
+        return fetched_df
+    
+    # If fetch failed but we have stale cache, return that as fallback
+    if not cached_df.empty:
+        logger.warning(f"Fetch failed for {symbol}, returning stale cache (last date: {cached_df.index[-1].date()})")
+        return cached_df
+        
+    # If everything failed
+    if not fetch_success:
+        logger.error(f"Failed to fetch data for {symbol} and no cache available.")
+        # Raise if it was a yfinance error that bubbled up, or return empty
+        # The original code raised on yfinance error, so we should probably raise or return empty.
+        # Returning empty allows the caller to handle it.
+        return pd.DataFrame()
+        
+    return pd.DataFrame()
 
 
 def get_intraday_history(
-    symbol: str, period: str = INTRADAY_PERIOD, interval: str = INTRADAY_INTERVAL
+    symbol: str, period: str = INTRADAY_PERIOD, interval: str = INTRADAY_INTERVAL, force_refresh: bool = False
 ) -> pd.DataFrame:
     """
     Fetch intraday OHLCV history.
-    Tries direct API first, falls back to yfinance.
+    Checks local CSV cache first.
     
     Args:
         symbol: Ticker symbol
         period: Period string (e.g., "5d")
         interval: Interval string (e.g., "5m")
+        force_refresh: If True, ignore cache
         
     Returns:
         DataFrame with intraday OHLCV data
     """
+    # Ensure data directory exists
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    
+    # Sanitize symbol for filename
+    safe_symbol = symbol.replace("^", "").replace(":", "_")
+    cache_path = DATA_DIR / f"{safe_symbol}_intraday.csv"
+    
+    cached_df = pd.DataFrame()
+    cache_valid = False
+    
+    # Try to load from cache
+    if cache_path.exists() and not force_refresh:
+        try:
+            cached_df = pd.read_csv(cache_path, index_col=0, parse_dates=True)
+            if not cached_df.empty:
+                # Check if cache is recent (e.g. modified within last 15 mins)
+                # For intraday, "freshness" is more strict. 
+                # But if we are rate limited, we definitely want the cache.
+                mtime = datetime.fromtimestamp(cache_path.stat().st_mtime)
+                if datetime.now() - mtime < timedelta(minutes=15):
+                    logger.info(f"Intraday cache hit for {symbol}: {mtime}")
+                    cache_valid = True
+                else:
+                    logger.info(f"Intraday cache stale for {symbol}: {mtime}")
+        except Exception as e:
+            logger.warning(f"Failed to read intraday cache for {symbol}: {e}")
+            
+    if cache_valid:
+        return cached_df
+
     logger.info(f"Fetching intraday history for {symbol} (period={period}, interval={interval})")
     
+    fetched_df = pd.DataFrame()
+    fetch_success = False
+    
     # Try direct API first
-    df = _fetch_yahoo_api_data(symbol, period=period, interval=interval)
-    if len(df) > 0:
-        return df
-        
     try:
-        # Fallback to yfinance
-        logger.info(f"Falling back to yfinance for intraday {symbol}")
-        ticker = yf.Ticker(symbol)
-        df = ticker.history(period=period, interval=interval, auto_adjust=False)
-        
-        if df.empty:
-            logger.warning(f"No intraday data for {symbol}, trying alternative period")
-            # Try 1d as fallback
-            df = ticker.history(period="1d", interval=interval, auto_adjust=False)
-        
-        df = df.dropna()
-        logger.info(f"Downloaded {len(df)} intraday candles for {symbol}")
-        return df
+        fetched_df = _fetch_yahoo_api_data(symbol, period=period, interval=interval)
+        if not fetched_df.empty:
+            fetch_success = True
     except Exception as e:
-        logger.error(f"Error fetching intraday {symbol}: {e}")
-        # Return empty dataframe instead of raising - allows pipeline to continue
-        logger.warning(f"Intraday fetch failed, continuing with empty intraday data")
-        return pd.DataFrame()
+        logger.warning(f"Direct API intraday fetch failed for {symbol}: {e}")
+        
+    if not fetch_success:
+        try:
+            # Fallback to yfinance
+            logger.info(f"Falling back to yfinance for intraday {symbol}")
+            ticker = yf.Ticker(symbol)
+            fetched_df = ticker.history(period=period, interval=interval, auto_adjust=False)
+            
+            if fetched_df.empty:
+                logger.warning(f"No intraday data for {symbol}, trying alternative period")
+                # Try 1d as fallback
+                fetched_df = ticker.history(period="1d", interval=interval, auto_adjust=False)
+            
+            fetched_df = fetched_df.dropna()
+            if not fetched_df.empty:
+                fetch_success = True
+                logger.info(f"Downloaded {len(fetched_df)} intraday candles for {symbol}")
+        except Exception as e:
+            logger.error(f"Error fetching intraday {symbol}: {e}")
+            
+    # Decide what to return
+    if fetch_success and not fetched_df.empty:
+        # Save to cache
+        try:
+            fetched_df.to_csv(cache_path)
+            logger.info(f"Saved {len(fetched_df)} intraday rows to cache: {cache_path}")
+        except Exception as e:
+            logger.error(f"Failed to save intraday cache for {symbol}: {e}")
+        return fetched_df
+    
+    # If fetch failed but we have stale cache, return that as fallback
+    if not cached_df.empty:
+        logger.warning(f"Intraday fetch failed for {symbol}, returning stale cache")
+        return cached_df
+
+    # If everything failed
+    logger.warning(f"Intraday fetch failed, continuing with empty intraday data")
+    return pd.DataFrame()
 
 
 def get_vix_history(years: int = LOOKBACK_YEARS) -> pd.DataFrame:

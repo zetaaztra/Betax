@@ -1,20 +1,20 @@
 import { TileWrapper } from "./tile-wrapper";
-import { BuyerData } from "@shared/schema";
+import { BuyerBlock } from "@/lib/aegis-data";
 import { TrendingUp } from "lucide-react";
 
 interface BreakoutGaugeProps {
-  data: BuyerData;
+  data: BuyerBlock;
   testId: string;
 }
 
 const helpText = "Breakout Potential measures today's probability of significant price movement beyond normal ranges. LOW (<40): theta decay dominates, avoid buying options. MODERATE (40-70): edge exists but selective. HIGH (>70): strong breakout setup, favorable for option buyers willing to pay premium.";
 
 export function BreakoutGauge({ data, testId }: BreakoutGaugeProps) {
-  const { score, level } = data.breakout_today;
-  
+  const { score, label } = data.breakout_today;
+
   const getColor = () => {
-    if (level === "HIGH") return { text: "text-spike", bg: "bg-spike/20", stroke: "stroke-spike" };
-    if (level === "MODERATE") return { text: "text-neutral", bg: "bg-neutral/20", stroke: "stroke-neutral" };
+    if (label === "HIGH") return { text: "text-spike", bg: "bg-spike/20", stroke: "stroke-spike" };
+    if (label === "MEDIUM") return { text: "text-neutral", bg: "bg-neutral/20", stroke: "stroke-neutral" };
     return { text: "text-muted-foreground", bg: "bg-muted", stroke: "stroke-muted-foreground" };
   };
 
@@ -50,23 +50,23 @@ export function BreakoutGauge({ data, testId }: BreakoutGaugeProps) {
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <TrendingUp className={`h-6 w-6 ${colors.text} mb-1`} />
             <span className={`text-2xl font-bold font-mono ${colors.text}`} data-testid={`text-breakout-score-${testId}`}>
-              {score.toFixed(0)}
+              {score.toFixed(2)}
             </span>
           </div>
         </div>
 
         <div className={`px-4 py-2 rounded-lg ${colors.bg} ${colors.text} font-semibold`} data-testid={`text-breakout-level-${testId}`}>
-          {level} Potential
+          {label} Potential
         </div>
 
         <div className="grid grid-cols-3 gap-2 w-full text-xs">
-          <div className={`text-center p-2 rounded ${level === "LOW" ? "bg-muted text-foreground font-semibold" : "bg-muted/50 text-muted-foreground"}`}>
+          <div className={`text-center p-2 rounded ${label === "LOW" ? "bg-muted text-foreground font-semibold" : "bg-muted/50 text-muted-foreground"}`}>
             Low
           </div>
-          <div className={`text-center p-2 rounded ${level === "MODERATE" ? "bg-neutral/20 text-neutral font-semibold" : "bg-muted/50 text-muted-foreground"}`}>
+          <div className={`text-center p-2 rounded ${label === "MEDIUM" ? "bg-neutral/20 text-neutral font-semibold" : "bg-muted/50 text-muted-foreground"}`}>
             Moderate
           </div>
-          <div className={`text-center p-2 rounded ${level === "HIGH" ? "bg-spike/20 text-spike font-semibold" : "bg-muted/50 text-muted-foreground"}`}>
+          <div className={`text-center p-2 rounded ${label === "HIGH" ? "bg-spike/20 text-spike font-semibold" : "bg-muted/50 text-muted-foreground"}`}>
             High
           </div>
         </div>

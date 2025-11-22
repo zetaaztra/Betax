@@ -55,7 +55,7 @@ export function BreachCurve({ data, testId }: BreachCurveProps) {
             <div key={i} className="text-center">
               <div className="text-muted-foreground">{d.distance} pts</div>
               <div className="font-semibold font-mono text-bearish">
-                {(d.probability * 100).toFixed(0)}%
+                {(d.probability * 100).toFixed(2)}%
               </div>
             </div>
           ))}

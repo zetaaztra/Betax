@@ -1,19 +1,19 @@
 import { TileWrapper } from "./tile-wrapper";
-import { BuyerData } from "@shared/schema";
+import { BuyerBlock } from "@/lib/aegis-data";
 import { Clock, Zap } from "lucide-react";
 
 interface ThetaEdgeScoreProps {
-  data: BuyerData;
+  data: BuyerBlock;
   testId: string;
 }
 
 const helpText = "Theta vs Edge Score answers: 'Is the potential move large enough to justify paying premium?' POOR (<40): theta decay kills profits, don't buy. FAIR (40-65): marginal edge, only for high conviction trades. GOOD (>65): expected movement exceeds theta cost, favorable buying opportunity.";
 
 export function ThetaEdgeScore({ data, testId }: ThetaEdgeScoreProps) {
-  const { score, level } = data.theta_edge;
-  
+  const { score, label } = data.theta_edge;
+
   const getDetails = () => {
-    if (level === "GOOD") {
+    if (label === "EDGE_JUSTIFIES_PREMIUM") {
       return {
         label: "Good",
         description: "Edge Justifies Premium",
@@ -22,7 +22,7 @@ export function ThetaEdgeScore({ data, testId }: ThetaEdgeScoreProps) {
         bg: "bg-spike/10",
       };
     }
-    if (level === "FAIR") {
+    if (label === "BORDERLINE") {
       return {
         label: "Fair",
         description: "Marginal Edge",
@@ -51,7 +51,7 @@ export function ThetaEdgeScore({ data, testId }: ThetaEdgeScoreProps) {
             {details.icon}
           </div>
           <div className={`text-3xl font-bold font-mono ${details.color}`}>
-            {score.toFixed(0)}
+            {score.toFixed(2)}
           </div>
         </div>
 
@@ -72,7 +72,7 @@ export function ThetaEdgeScore({ data, testId }: ThetaEdgeScoreProps) {
             <div className="flex-1 bg-spike/30" />
           </div>
           <div className="relative h-1">
-            <div 
+            <div
               className="absolute w-0.5 h-4 bg-foreground rounded-full -top-1.5"
               style={{ left: `${position}%` }}
             />

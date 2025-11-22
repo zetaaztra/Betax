@@ -36,7 +36,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold">Tradyxa Aegis Matrix</h1>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-muted-foreground mt-1 font-bold">
                   NIFTY Options Intelligence System Using Trained ML Models
                 </p>
               </div>

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-11-22T12:12:42.720172Z",
+  "generated_at": "2025-11-22T13:01:08.749070Z",
   "market": {
     "spot": 26068.150390625,
     "spot_change": -124.0,
@@ -15,7 +15,7 @@
       "expected_move_points": 30.0,
       "conviction": 0.09471122423463385,
       "intraday_volatility_score": 0.006788581229909333,
-      "last_update": "2025-11-22T12:12:42.707413Z"
+      "last_update": "2025-11-22T13:01:08.717154Z"
     },
     "horizons": {
       "t1": {
@@ -55,7 +55,7 @@
         "conviction": 0.34
       }
     },
-    "risk_score": 0.12710023449789232
+    "risk_score": 0.16949861636801344
   },
   "seller": {
     "safe_range": {
@@ -69,7 +69,7 @@
       "confidence": 0.6
     },
     "trap": {
-      "score": 0.43952736258506775,
+      "score": 0.6097713708877563,
       "label": "MEDIUM",
       "iv_percentile": 0.48412698412698413,
       "rv_percentile": 0.06349206349206349
@@ -86,15 +86,15 @@
     "breach_probabilities": [
       {
         "distance": 100,
-        "probability": 0.03068560392620839
+        "probability": 0.03404105999312357
       },
       {
         "distance": 200,
-        "probability": 3.279902153481922e-06
+        "probability": 3.6385578803255214e-06
       },
       {
         "distance": 300,
-        "probability": 1.4675546467907913e-12
+        "probability": 1.6280310433103296e-12
       },
       {
         "distance": 400,
