@@ -206,6 +206,11 @@ def get_daily_history(symbol: str, years: int = LOOKBACK_YEARS) -> pd.DataFrame:
     try:
         logger.info(f"Falling back to yfinance for {symbol}")
         df = yf.download(symbol, start=start, end=end, progress=False, timeout=30)
+        
+        # Handle MultiIndex columns (yfinance update)
+        if isinstance(df.columns, pd.MultiIndex):
+            df.columns = df.columns.get_level_values(0)
+            
         df = df.dropna()
         logger.info(f"Downloaded {len(df)} daily candles for {symbol} via yfinance")
         return df

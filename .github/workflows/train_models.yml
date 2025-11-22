@@ -55,5 +55,6 @@ jobs:
             echo "No changes in models"
           else
             git commit -m "chore: update trained models [skip ci]"
-            git push
+            git pull --rebase origin main
+            git push origin main
           fi
