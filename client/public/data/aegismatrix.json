@@ -1,0 +1,177 @@
+{
+  "generated_at": "2025-11-21T14:05:05.349522Z",
+  "market": {
+    "spot": 26068.150390625,
+    "spot_change": -124.0,
+    "spot_change_pct": -0.004734242822780352,
+    "vix": 13.630000114440918,
+    "vix_change": 1.489999771118164,
+    "vix_change_pct": 0.12273473879576076,
+    "regime": "LOW_VOL_BULL"
+  },
+  "direction": {
+    "today": {
+      "direction": "NEUTRAL",
+      "expected_move_points": 30.0,
+      "conviction": 0.09471122423463385,
+      "intraday_volatility_score": 0.006788581229909333,
+      "last_update": "2025-11-21T14:05:05.342641Z"
+    },
+    "horizons": {
+      "t1": {
+        "label": "Tomorrow",
+        "direction": "UP",
+        "expected_move_points": 742.5174001399816,
+        "conviction": 0.1648389054684704
+      },
+      "t3": {
+        "label": "Next 3 Days",
+        "direction": "UP",
+        "expected_move_points": 1286.0778625463981,
+        "conviction": 0.18384161050581255
+      },
+      "t5": {
+        "label": "This Week",
+        "direction": "UP",
+        "expected_move_points": 1660.3193811894105,
+        "conviction": 0.1328068337794041
+      },
+      "t10": {
+        "label": "Next Week",
+        "direction": "UP",
+        "expected_move_points": 2348.046186748969,
+        "conviction": 0.19123425971265615
+      },
+      "t20": {
+        "label": "This Month",
+        "direction": "UP",
+        "expected_move_points": 3320.638762378821,
+        "conviction": 0.207336332581341
+      },
+      "t40": {
+        "label": "Next Month",
+        "direction": "UP",
+        "expected_move_points": 4696.092373497938,
+        "conviction": 0.2258273455486385
+      }
+    },
+    "risk_score": 0.15994636568132978
+  },
+  "seller": {
+    "safe_range": {
+      "lower": 26007.43516910388,
+      "upper": 26128.86561214612,
+      "horizon_days": 30
+    },
+    "max_pain": {
+      "lower": 25789.13526392041,
+      "upper": 26706.047590095306,
+      "confidence": 0.6
+    },
+    "trap": {
+      "score": 0.628968253968254,
+      "label": "MEDIUM",
+      "iv_percentile": 0.30952380952380953,
+      "rv_percentile": 0.051587301587301584
+    },
+    "skew": {
+      "put_skew": -0.011672200129671507,
+      "call_skew": 0.01195119357608861,
+      "net_skew": -0.023623393705760116
+    },
+    "expiry_stress": {
+      "score": 0.4373841626744238,
+      "label": "CAUTION"
+    },
+    "breach_probabilities": [
+      {
+        "distance": 100,
+        "probability": 0.013550633436930859
+      },
+      {
+        "distance": 200,
+        "probability": 7.896015483677132e-07
+      },
+      {
+        "distance": 300,
+        "probability": 1.2922996006636822e-13
+      },
+      {
+        "distance": 400,
+        "probability": 0.0
+      }
+    ],
+    "seller_flag": {
+      "label": "FAVOURABLE",
+      "color": "GREEN",
+      "reasons": []
+    },
+    "historical_hit_rate": 0.72
+  },
+  "buyer": {
+    "breakout_today": {
+      "score": 0.2,
+      "label": "LOW"
+    },
+    "breakout_next": [
+      {
+        "day_offset": 1,
+        "score": 0.15771418119092517,
+        "label": "LOW"
+      },
+      {
+        "day_offset": 2,
+        "score": 0.1677584172315683,
+        "label": "LOW"
+      },
+      {
+        "day_offset": 3,
+        "score": 0.12129605158031692,
+        "label": "LOW"
+      },
+      {
+        "day_offset": 4,
+        "score": 0.12467377832677191,
+        "label": "LOW"
+      },
+      {
+        "day_offset": 5,
+        "score": 0.08476513464457301,
+        "label": "LOW"
+      }
+    ],
+    "spike_direction_bias": {
+      "up_prob": 0.524189356704182,
+      "down_prob": 0.475810643295818
+    },
+    "breakout_levels": {
+      "upper": 26244.11982048318,
+      "lower": 25892.18096076682
+    },
+    "gamma_windows": [
+      {
+        "window": "09:45-10:15",
+        "score": 0.9673555329418405
+      },
+      {
+        "window": "10:15-10:45",
+        "score": 0.4797734925007502
+      },
+      {
+        "window": "14:30-15:15",
+        "score": 1.0
+      }
+    ],
+    "theta_edge": {
+      "score": 0.018534762248957993,
+      "label": "DONT_WASTE_PREMIUM"
+    },
+    "regime": "MEAN_REVERT",
+    "buyer_environment": {
+      "label": "UNFAVOURABLE",
+      "color": "RED",
+      "reasons": []
+    },
+    "historical_spike_rate": 0.58
+  }
+}

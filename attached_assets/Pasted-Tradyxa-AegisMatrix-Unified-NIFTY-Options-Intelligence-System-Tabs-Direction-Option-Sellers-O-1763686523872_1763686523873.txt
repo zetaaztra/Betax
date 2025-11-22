@@ -1,0 +1,449 @@
+Tradyxa AegisMatrix — Unified NIFTY Options Intelligence System
+Tabs: Direction · Option Sellers · Option Buyers
+
+I’ll give you:
+
+How the tabs are structured in UI.
+
+What tiles go in each tab (with graphs/gauges).
+
+How dark / light themes apply consistently.
+
+How JSON is shared across all three.
+
+1. High-Level UX Structure
+
+Global frame (same for all tabs):
+
+Header:
+
+Product name + subtitle.
+
+Tabs: Direction | Option Sellers | Option Buyers.
+
+Theme toggle (dark/light).
+
+Hard Refresh button.
+
+Background:
+
+AegisMatrix concentric “radar” animation.
+
+Main content:
+
+Tiles grid for the active tab.
+
+Bottom:
+
+“How to Use This Dashboard” collapsible.
+
+Footer with all legal text and links.
+
+Overlays:
+
+Disclaimer modal (educational use).
+
+Cookie & Ad consent.
+
+Tabs are front-end only routing – you don’t hit different JSON; all 3 tabs read from the same aegismatrix.json.
+
+2. JSON Layout (Single File, Three Logical Sections)
+
+/public/data/aegismatrix.json (conceptual):
+
+{
+  "generated_at": "2025-11-21T10:20:00+05:30",
+  "market": {
+    "spot": 19783.45,
+    "spot_change": 45.2,
+    "vix": 15.4,
+    "vix_change": -0.8,
+    "regime": "LOW_VOL_BULL"
+  },
+  "direction": {
+    "today": { ... },
+    "horizons": {
+      "t1": { ... },
+      "t3": { ... },
+      "t5": { ... },
+      "t10": { ... },
+      "t20": { ... },
+      "t40": { ... }
+    },
+    "risk_score": 0.37
+  },
+  "seller": {
+    "safe_range": { ... },
+    "max_pain": { ... },
+    "trap": { ... },
+    "skew": { ... },
+    "expiry_stress": { ... },
+    "breach_probabilities": [ ... ]
+  },
+  "buyer": {
+    "breakout_today": { ... },
+    "breakout_next": [ ... ],
+    "spike_direction_bias": { ... },
+    "gamma_windows": [ ... ],
+    "theta_edge": { ... },
+    "regime": "TREND_FOLLOWING"
+  }
+}
+
+
+Each tab just reads its slice (direction, seller, buyer) plus the shared market.
+
+3. Tab 1 — Direction (AegisCore View)
+Purpose
+
+Pure directional view: “Is NIFTY likely up/down/neutral, and by how many points, over different horizons?”
+
+Tile Layout (3×4 grid)
+
+Row 1
+
+Today Direction (Intraday)
+
+Type: half-circle gauge + arrow (SVG).
+
+Shows: UP / DOWN / NEUTRAL and +/- points.
+
+Uses: direction.today.direction, .expected_move_points, .conviction.
+
+Spot Price
+
+Type: numeric tile + micro-sparkline.
+
+Uses: market.spot, market.spot_change.
+
+India VIX
+
+Type: numeric + color band (“Low / Normal / High”).
+
+Uses: market.vix, market.vix_change, market.regime.
+
+Row 2
+4. Tomorrow (T+1)
+
+Type: compact gauge or bar.
+
+Uses: direction.horizons.t1.
+
+Next 3 Days (T+3)
+
+Type: bar with label & expected move.
+
+Uses: direction.horizons.t3.
+
+This Week (T+5)
+
+Type: small line chart (Chart.js) with colored gradient (green/red based on direction).
+
+Uses: direction.horizons.t5.
+
+Row 3
+7. Next Week (T+10)
+
+Type: mini line or bar tile.
+
+Uses: direction.horizons.t10.
+
+This Month (T+20)
+
+Type: arrow ruler (longer arrow = more points).
+
+Uses: direction.horizons.t20.
+
+Next Month (T+40)
+
+Same arrow-style, longer horizon.
+
+Uses: direction.horizons.t40.
+
+Row 4
+10. Overall Direction Risk Score
+- Type: circular dial.
+- Uses: direction.risk_score.
+
+Market Regime
+
+Type: regime pill: “Bull / Bear / Sideways” with icon.
+
+Derived from: market.regime.
+
+Direction Help Tile
+
+Type: simple tile with ?. On click, opens help modal explaining all direction tiles and interpretation.
+
+Visual Encoding
+
+Up = green accent (dark #00EA99, light #1FA378).
+
+Down = red accent (dark #FF4E68, light #D62839).
+
+Neutral = grey/blue (#9BA3B5 / #6B7280).
+
+4. Tab 2 — Option Sellers (RangeShield View)
+Purpose
+
+Show safe-ish ranges, stress, traps, skew, breach probabilities for short option strategies.
+
+Tile Layout (3×4 grid)
+
+Row 1
+
+Safe Short Range (Band)
+
+Type: horizontal bar centered on spot.
+
+Visual:
+
+Bar = price axis.
+
+Center marker = spot.
+
+Shaded band = [L_safe, U_safe].
+
+Sources: seller.safe_range.lower, .upper, market.spot.
+
+Max Pain Zone
+
+Type: mini density/curve or histogram; highlight central zone.
+
+Uses: seller.max_pain.lower, .upper.
+
+Expiry Stress Meter
+
+Type: shield gauge (0–100).
+
+Uses: seller.expiry_stress.score.
+
+Row 2
+4. Volatility Trap Risk
+
+Type: gauge with three labels: Low / Medium / High.
+
+Uses: seller.trap.score.
+
+Color:
+
+low = green, medium = amber, high = red.
+
+Skew Pressure (Calls vs Puts)
+
+Type: two vertical bars side by side:
+
+Left: Put Skew
+
+Right: Call Skew
+
+Uses: seller.skew.put_skew, .call_skew.
+
+Seller Regime Tag
+
+Type: pill: “Seller Environment: Calm / Cautious / Hostile”.
+
+Derived from a combination of stress + trap.
+
+Row 3
+7. Range Breach Curve
+
+Type: small line chart.
+
+X-axis = distance from spot (100 / 200 / 300 / 400 pts).
+
+Y-axis = breach probability to expiry.
+
+Uses: seller.breach_probabilities[] (array of {distance, probability}).
+
+Historical Range Hit Rate
+
+Type: line over time showing how often NIFTY broke certain distance bands historically.
+
+Uses: aggregated stats (optional, precomputed).
+
+Seller Daily Flag
+
+Type: colored shield icon + label:
+
+“Favourable / Neutral / Risky for Aggressive Shorting”.
+
+Uses: classification from backend.
+
+Row 4
+10. Spot Price (for Sellers)
+- Same as direction tab, small version, but pinned here for convenience.
+
+India VIX (for Sellers)
+
+Same as direction tab, emphasised as “Short Premium Visibility”.
+
+Sellers’ Help Tile
+
+On click, opens modal:
+
+Explains safe range, traps, skew, and what “expiry stress” means in plain trading terms.
+
+Seller Color Semantics
+
+Core seller safety = lime/safety green (#00EA99 / #1FA378).
+
+Danger = red (#FF4E68 / #D62839).
+
+Neutral / no signal = cold grey-blue.
+
+5. Tab 3 — Option Buyers (PulseWave View)
+Purpose
+
+Show spike / breakout probability, best days and time windows to consider buying options, direction bias if a spike occurs, and whether theta is justified.
+
+Tile Layout (3×4 grid)
+
+Row 1
+
+Breakout Potential (Today)
+
+Type: big gauge (0–100) labelled: Low / Moderate / High.
+
+Uses: buyer.breakout_today.score.
+
+Spike Direction Bias
+
+Type: split horizontal bar:
+
+Left red = DOWN %,
+
+Right green = UP %.
+
+Uses: buyer.spike_direction_bias.up_prob, .down_prob.
+
+Theta vs Edge Score
+
+Type: bar from “Don’t Waste Premium” to “Edge Justifies Premium”.
+
+Uses: buyer.theta_edge.score.
+
+Row 2
+4. Next 5-Day Breakout Map
+
+Type: 5 mini vertical bars labelled D+1..D+5.
+
+Uses: buyer.breakout_next[] ({day_offset, score}).
+
+Gamma Burst Windows (Intraday)
+
+Type: time-strip across 09:15–15:30 split into 30-minute blocks, intensity heat (color) = spike score.
+
+Uses: buyer.gamma_windows[] ({time_block, score}).
+
+Buyer Regime
+
+Type: regime pill: Trend-Following / Mean-Reverting / Choppy.
+
+Uses: buyer.regime.
+
+Row 3
+7. Historical Spike Hit Rate
+
+Type: line chart: predicted vs realized spikes in past N days (backtest metric).
+
+Uses: precomputed summary in JSON.
+
+Breakout Level Reference
+
+Type: small card:
+
+“Above X → breakout up zone, below Y → breakdown zone” (levels taken from model).
+
+Today’s Buyer Recommendation State
+
+IMPORTANT: word carefully.
+
+Label: “Environment: Premium-Friendly / Cautious / Avoid Full Risk”.
+
+No “buy now” wording.
+
+Row 4
+10. Spot Price (for buyers).
+
+VIX / Shock Risk
+
+Emphasis: “Shock potential” or “Gap risk” tile.
+
+Buyers’ Help Tile
+
+On click, opens modal that explains:
+
+Breakout score, spike direction bar, gamma windows, theta vs edge in plain terms.
+
+Buyer Color Semantics
+
+Core buyer edge / spike potential = cyan (#2BDFFF / #0894C9).
+
+Theta pain / bad days = muted grey / amber.
+
+Spike direction uses green/red but intensity reflects conviction.
+
+6. Themes & Backgrounds Applied to Tabs
+
+All three tabs share:
+
+Dark Mode:
+
+Background: #081015
+
+Tiles: #0E141C
+
+Grid lines: #172029
+
+Concentric rings: subtle rgba(43, 223, 255, 0.05) and rgba(0, 234, 153, 0.05).
+
+Light Mode:
+
+Background: #F7FBFE
+
+Tiles: #FFFFFF
+
+Grid lines: #D7DFE8
+
+Concentric rings: rgba(8, 148, 201, 0.05).
+
+Only accent colors differ in each tab emphasis:
+
+Direction tab: balanced green/red + neutral grey.
+
+Sellers tab: safety green emphasis + red warnings.
+
+Buyers tab: cyan spike emphasis + red/green for directional skew.
+
+7. Component Layout (Next.js App Router)
+
+Minimal structure to reflect tabs (not full code):
+
+/aegismatrix-ui/app
+  layout.tsx        # theme, modals, cookie bar, footer
+  page.tsx          # default to Direction tab
+  direction/page.tsx
+  sellers/page.tsx
+  buyers/page.tsx
+
+
+Or single-page tabbed:
+
+// app/page.tsx
+export default function Dashboard() {
+  const [activeTab, setActiveTab] = useState<"direction"|"seller"|"buyer">("direction");
+  const data = useAegisMatrixData(); // load aegismatrix.json
+
+  return (
+    <Shell>
+      <TabBar ... />
+      {activeTab === "direction" && <DirectionView data={data} />}
+      {activeTab === "seller" && <SellerView data={data} />}
+      {activeTab === "buyer" && <BuyerView data={data} />}
+    </Shell>
+  );
+}
+
+
+Either approach is fine; tabbed in a single page is simpler and faster.

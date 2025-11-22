@@ -1,0 +1,59 @@
+name: Train Models
+
+on:
+  schedule:
+    # Run once a week on Saturday at 00:00 UTC
+    - cron: '0 0 * * 6'
+  
+  workflow_dispatch: # Allow manual trigger
+
+env:
+  PYTHON_VERSION: '3.12'
+
+jobs:
+  train-models:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: 'aegismatrix-engine/requirements.txt'
+      
+      - name: Install dependencies
+        run: |
+          cd aegismatrix-engine
+          pip install -r requirements.txt
+      
+      - name: Train Models
+        run: |
+          cd aegismatrix-engine
+          echo "🚀 Starting model training..."
+          python train_all.py
+          echo "✅ Training completed"
+      
+      - name: Commit trained models
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # Add models directory
+          git add aegismatrix-engine/models/
+          
+          if git diff --staged --quiet; then
+            echo "No changes in models"
+          else
+            git commit -m "chore: update trained models [skip ci]"
+            git push
+          fi

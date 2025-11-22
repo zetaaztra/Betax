@@ -1,0 +1,142 @@
+name: Update Dashboard Data
+
+on:
+  schedule:
+    # Run at specific times during market hours (IST: 9:15 AM - 3:30 PM)
+    # UTC times (IST is UTC+5:30)
+    # Monday to Friday only (1-5)
+    - cron: '30 3 * * 1-5'  # 9:00 UTC = 2:30 PM IST (aim for 9:15 AM)
+    - cron: '45 3 * * 1-5'  # 9:15 UTC = 2:45 PM IST (aim for 9:30 AM)
+    - cron: '30 4 * * 1-5'  # 10:00 UTC = 3:30 PM IST (aim for 10:15 AM)
+    - cron: '30 5 * * 1-5'  # 11:00 UTC = 4:30 PM IST (aim for 11:15 AM)
+    - cron: '0 6 * * 1-5'   # 11:30 UTC = 5:00 PM IST (aim for 11:45 AM)
+    - cron: '30 6 * * 1-5'  # 12:00 UTC = 5:30 PM IST (aim for 12:15 PM)
+    - cron: '0 7 * * 1-5'   # 12:30 UTC = 6:00 PM IST (aim for 12:45 PM)
+    - cron: '30 7 * * 1-5'  # 1:00 UTC = 6:30 PM IST (aim for 1:15 PM)
+    - cron: '0 8 * * 1-5'   # 1:30 UTC = 7:00 PM IST (aim for 1:45 PM)
+    - cron: '30 8 * * 1-5'  # 2:00 UTC = 7:30 PM IST (aim for 2:15 PM)
+    - cron: '0 9 * * 1-5'   # 2:30 UTC = 8:00 PM IST (aim for 2:45 PM)
+    - cron: '30 9 * * 1-5'  # 3:00 UTC = 8:30 PM IST (aim for 3:15 PM)
+    - cron: '0 10 * * 1-5'  # 3:30 UTC = 9:00 PM IST (aim for 3:45 PM)
+  
+  workflow_dispatch: # Allow manual trigger
+
+env:
+  PYTHON_VERSION: '3.12'
+  TZ: Asia/Kolkata
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    # Prevent multiple runs from overlapping
+    concurrency:
+      group: update-dashboard-data
+      cancel-in-progress: false
+    
+    permissions:
+      contents: write
+      actions: read
+    
+    steps:
+      - name: Debug timestamps
+        run: |
+          echo "⏰ Scheduled trigger time tracking:"
+          echo "UTC now: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          echo "IST now: $(TZ=Asia/Kolkata date +'%Y-%m-%dT%H:%M:%S %Z')"
+        shell: bash
+      
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: 'aegismatrix-engine/requirements.txt'
+      
+      - name: Install Python dependencies
+        run: |
+          cd aegismatrix-engine
+          pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Run inference script
+        run: |
+          cd aegismatrix-engine
+          echo "🚀 Starting inference at $(date)"
+          python infer.py
+          echo "✅ Inference completed at $(date)"
+          
+          # Verify aegismatrix.json was created
+          echo "🔍 Verifying aegismatrix.json..."
+          if [ -f "../client/public/data/aegismatrix.json" ]; then
+            echo "✅ aegismatrix.json exists"
+            echo "📊 File size: $(wc -c < ../client/public/data/aegismatrix.json) bytes"
+          else
+            echo "❌ ERROR: aegismatrix.json NOT FOUND"
+            ls -la ../client/public/data/ || echo "Directory missing"
+            exit 1
+          fi
+        env:
+          TZ: Asia/Kolkata
+      
+      - name: Commit and push updated data
+        id: commit
+        run: |
+          # Configure git
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # Define data file path
+          DATA_FILE="client/public/data/aegismatrix.json"
+          
+          # Verify file exists
+          if [ ! -f "$DATA_FILE" ]; then
+            echo "❌ ERROR: $DATA_FILE not found"
+            exit 1
+          fi
+          
+          # Stage file
+          git add "$DATA_FILE"
+          
+          # Check for changes
+          if git diff --staged --quiet; then
+            echo "⚠️ No changes detected"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Changes detected, committing..."
+            git commit -m "chore: update dashboard data - $(date +'%Y-%m-%d %H:%M %Z')"
+            
+            # Get current branch
+            BRANCH=$(git rev-parse --abbrev-ref HEAD)
+            echo "📌 Branch: $BRANCH"
+            
+            # Push changes
+            echo "🚀 Pushing to $BRANCH..."
+            if git push origin "$BRANCH"; then
+              echo "✅ Successfully pushed to $BRANCH"
+              echo "changed=true" >> $GITHUB_OUTPUT
+            else
+              echo "❌ Push failed"
+              git remote -v
+              exit 1
+            fi
+          fi
+      
+      - name: Trigger Cloudflare Pages rebuild
+        if: steps.commit.outputs.changed == 'true'
+        run: |
+          if [ -n "${{ secrets.CLOUDFLARE_BUILD_HOOK }}" ]; then
+            echo "🔄 Triggering Cloudflare rebuild..."
+            curl -X POST "${{ secrets.CLOUDFLARE_BUILD_HOOK }}"
+            echo "✅ Cloudflare rebuild triggered"
+          else
+            echo "ℹ️ No build hook configured - relying on auto-deploy"
+          fi
+        continue-on-error: true
