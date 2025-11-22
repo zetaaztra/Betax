@@ -37,7 +37,7 @@ export default function Dashboard() {
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold">Tradyxa Aegis Matrix</h1>
                 <p className="text-sm text-muted-foreground mt-1">
-                  NIFTY Options Intelligence System
+                  NIFTY Options Intelligence System Using Trained ML Models
                 </p>
               </div>
 
@@ -66,19 +66,24 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
-              <TabsList className="grid w-full md:w-auto md:inline-grid grid-cols-3">
-                <TabsTrigger value="direction" data-testid="tab-direction">
-                  Direction
-                </TabsTrigger>
-                <TabsTrigger value="buyer" data-testid="tab-buyer">
-                  Option Buyers
-                </TabsTrigger>
-                <TabsTrigger value="seller" data-testid="tab-seller">
-                  Option Sellers
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+            <div className="flex flex-col md:flex-row md:items-center gap-2">
+              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="w-full md:w-auto">
+                <TabsList className="grid w-full md:w-auto md:inline-grid grid-cols-3">
+                  <TabsTrigger value="direction" data-testid="tab-direction">
+                    Direction
+                  </TabsTrigger>
+                  <TabsTrigger value="buyer" data-testid="tab-buyer">
+                    Option Buyers
+                  </TabsTrigger>
+                  <TabsTrigger value="seller" data-testid="tab-seller">
+                    Option Sellers
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+              <span className="text-xs text-muted-foreground ml-2 hidden md:inline-block animate-pulse">
+                Click tabs to change views
+              </span>
+            </div>
           </div>
         </div>
       </header>
