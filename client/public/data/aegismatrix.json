@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-11-22T11:52:16.316922Z",
+  "generated_at": "2025-11-22T12:12:42.720172Z",
   "market": {
     "spot": 26068.150390625,
     "spot_change": -124.0,
@@ -15,7 +15,7 @@
       "expected_move_points": 30.0,
       "conviction": 0.09471122423463385,
       "intraday_volatility_score": 0.006788581229909333,
-      "last_update": "2025-11-22T11:52:16.274793Z"
+      "last_update": "2025-11-22T12:12:42.707413Z"
     },
     "horizons": {
       "t1": {
@@ -55,7 +55,7 @@
         "conviction": 0.34
       }
     },
-    "risk_score": 0.21155725750201385
+    "risk_score": 0.12710023449789232
   },
   "seller": {
     "safe_range": {
