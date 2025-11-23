@@ -10,7 +10,8 @@ interface ExpiryStressMeterProps {
 const helpText = "Expiry Stress Meter quantifies market tension approaching option expiry. Low stress (<30) suggests calm conditions ideal for aggressive selling. Medium (30-60) indicates normal caution. High stress (>60) warns of elevated gamma risk, pinning effects, and potential violent moves as positions unwind.";
 
 export function ExpiryStressMeter({ data, testId }: ExpiryStressMeterProps) {
-  const { score, label } = data.expiry_stress;
+  const { score: rawScore, label } = data.expiry_stress;
+  const score = rawScore * 100;
 
   const getColor = () => {
     if (label === "CALM") return { text: "text-bullish", bg: "bg-bullish/20", stroke: "stroke-bullish" };

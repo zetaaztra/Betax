@@ -10,7 +10,8 @@ interface VolatilityTrapProps {
 const helpText = "Volatility Trap measures risk of sudden IV spike after selling options. Low (<30): premiums may be too thin but safe. Medium (30-60): balanced risk-reward. High (>60): tempting premiums but dangerous - IV could explode causing mark-to-market losses before expiry. Consider this before selling in apparently 'calm' markets.";
 
 export function VolatilityTrap({ data, testId }: VolatilityTrapProps) {
-  const { score, label } = data.trap;
+  const { score: rawScore, label } = data.trap;
+  const score = rawScore * 100;
 
   const getDetails = () => {
     if (label === "LOW") {

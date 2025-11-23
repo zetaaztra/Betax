@@ -10,7 +10,8 @@ interface ThetaEdgeScoreProps {
 const helpText = "Theta vs Edge Score answers: 'Is the potential move large enough to justify paying premium?' POOR (<40): theta decay kills profits, don't buy. FAIR (40-65): marginal edge, only for high conviction trades. GOOD (>65): expected movement exceeds theta cost, favorable buying opportunity.";
 
 export function ThetaEdgeScore({ data, testId }: ThetaEdgeScoreProps) {
-  const { score, label } = data.theta_edge;
+  const { score: rawScore, label } = data.theta_edge;
+  const score = rawScore * 100;
 
   const getDetails = () => {
     if (label === "EDGE_JUSTIFIES_PREMIUM") {
