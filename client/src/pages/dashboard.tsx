@@ -13,13 +13,15 @@ import { HowToUse } from "@/components/how-to-use";
 import { Footer } from "@/components/footer";
 import { useTheme } from "@/components/theme-provider";
 import { AegisMatrixData } from "@shared/schema";
+import { loadAegisMatrixData } from "@/lib/aegis-data";
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<"direction" | "seller" | "buyer">("direction");
   const { theme, setTheme } = useTheme();
 
   const { data, isLoading, refetch } = useQuery<AegisMatrixData>({
-    queryKey: ["/api/aegismatrix"],
+    queryKey: ["aegis-data"],
+    queryFn: () => loadAegisMatrixData(),
   });
 
   const handleRefresh = () => {
