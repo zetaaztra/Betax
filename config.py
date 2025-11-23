@@ -7,7 +7,7 @@ from pathlib import Path
 
 # Paths
 PROJECT_ROOT = Path(__file__).resolve().parent
-CLIENT_ROOT = PROJECT_ROOT.parent / "client"
+CLIENT_ROOT = PROJECT_ROOT / "client"
 JSON_OUTPUT_PATH = CLIENT_ROOT / "public" / "data" / "aegismatrix.json"
 MODEL_DIR = PROJECT_ROOT / "models"
 DATA_DIR = PROJECT_ROOT / "data"
