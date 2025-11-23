@@ -123,9 +123,9 @@ def create_breach_labels(nifty_df, safe_range_multiplier=1.5, horizon=30):
         safe_upper = spot + safe_range
         safe_lower = spot - safe_range
         
-        # Check if price breached in next 'horizon' days
-        future_high = nifty_df['High'].iloc[i:i+horizon].max()
-        future_low = nifty_df['Low'].iloc[i:i+horizon].min()
+        # Check if price breached in next 'horizon' days (excluding today)
+        future_high = nifty_df['High'].iloc[i+1:i+1+horizon].max()
+        future_low = nifty_df['Low'].iloc[i+1:i+1+horizon].min()
         
         if future_high > safe_upper or future_low < safe_lower:
             labels[i] = 1  # Breach occurred

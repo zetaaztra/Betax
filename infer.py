@@ -79,8 +79,8 @@ def build_market_block(nifty_df, vix_df) -> dict:
     
     latest_nifty = nifty_df.iloc[-1]
     prev_nifty = nifty_df.iloc[-2]
-    latest_vix = vix_df.iloc[-1] if len(vix_df) > 0 else latest_nifty
-    prev_vix = vix_df.iloc[-2] if len(vix_df) > 1 else latest_nifty
+    latest_vix = vix_df.iloc[-1] if len(vix_df) > 0 else pd.Series({"Close": 15.0, "Open": 15.0, "High": 15.0, "Low": 15.0})
+    prev_vix = vix_df.iloc[-2] if len(vix_df) > 1 else latest_vix
     
     spot = float(latest_nifty["Close"])
     spot_change = float(latest_nifty["Close"] - prev_nifty["Close"])
