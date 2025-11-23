@@ -82,7 +82,7 @@ export default function Dashboard() {
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
-              <span className="text-xs text-muted-foreground ml-2 hidden md:inline-block animate-pulse">
+              <span className="text-xs text-muted-foreground ml-2 animate-pulse">
                 Click tabs to change views
               </span>
             </div>

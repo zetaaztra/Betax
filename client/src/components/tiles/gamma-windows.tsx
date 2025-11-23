@@ -9,8 +9,8 @@ interface GammaWindowsProps {
 const helpText = "Gamma Burst Windows identifies intraday time blocks when sharp price moves are most likely based on historical patterns and scheduled events. Bright colors = high-probability spike windows. Use this for day trading options: enter positions before hot windows, exit before cool periods to maximize gamma gains.";
 
 export function GammaWindows({ data, testId }: GammaWindowsProps) {
-  const windows = data.gamma_windows;
-  const maxScore = Math.max(...windows.map(w => w.score));
+  const windows = data.gamma_windows.map((w: any) => ({ ...w, score: w.score * 100 }));
+  const maxScore = Math.max(...windows.map((w: any) => w.score));
 
   const getIntensityColor = (score: number) => {
     const intensity = score / maxScore;
@@ -23,12 +23,12 @@ export function GammaWindows({ data, testId }: GammaWindowsProps) {
     <TileWrapper title="Gamma Burst Windows (Intraday)" helpText={helpText} testId={testId}>
       <div className="space-y-3">
         <div className="grid grid-cols-6 gap-1">
-          {windows.map((w, i) => (
+          {windows.map((w: any, i: number) => (
             <div
               key={i}
               className={`p-2 rounded text-center ${getIntensityColor(w.score)}`}
             >
-              <div className="text-xs font-semibold">{w.time_block}</div>
+              <div className="text-xs font-semibold">{w.window}</div>
               <div className="text-xs font-mono mt-0.5">{w.score.toFixed(0)}</div>
             </div>
           ))}
