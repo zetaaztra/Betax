@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-11-23T16:57:30.451143Z",
+  "generated_at": "2025-11-24T04:09:47.221673Z",
   "market": {
     "spot": 26068.150390625,
     "spot_change": -124.0,
@@ -13,9 +13,9 @@
     "today": {
       "direction": "NEUTRAL",
       "expected_move_points": 30.0,
-      "conviction": 0.09471122423463385,
-      "intraday_volatility_score": 0.006788581229909333,
-      "last_update": "2025-11-23T16:57:30.436808Z"
+      "conviction": 0.061665108531502484,
+      "intraday_volatility_score": 0.008490399634252124,
+      "last_update": "2025-11-24T04:09:47.208186Z"
     },
     "horizons": {
       "t1": {
@@ -55,7 +55,7 @@
         "conviction": 0.34
       }
     },
-    "risk_score": 0.14092567212640983
+    "risk_score": 0.06644277510331124
   },
   "seller": {
     "safe_range": {
@@ -64,8 +64,8 @@
       "horizon_days": 30
     },
     "max_pain": {
-      "lower": 25667.81945620378,
-      "upper": 26578.83845515477,
+      "lower": 25667.756810784977,
+      "upper": 26578.90110057357,
       "confidence": 0.6
     },
     "trap": {
@@ -153,15 +153,15 @@
     "gamma_windows": [
       {
         "window": "09:45-10:15",
-        "score": 0.9662069330757987
+        "score": 1.0
       },
       {
         "window": "10:15-10:45",
-        "score": 0.47920382834889397
+        "score": 1.0
       },
       {
         "window": "14:30-15:15",
-        "score": 1.0
+        "score": 0.9584533443916272
       }
     ],
     "theta_edge": {
