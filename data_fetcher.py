@@ -277,49 +277,61 @@ def get_vix_history(years: int = LOOKBACK_YEARS) -> pd.DataFrame:
 
 def get_live_price(symbol: str) -> float:
     """
-    Get live/current price from yfinance ticker info.
-    Real-time during market hours, close when market is closed.
+    Get live/current price with multiple fallback strategies.
+    Prioritizes: 1) Intraday 1m data, 2) Info, 3) Fast_info, 4) Historical 1m
     
     Args:
         symbol: Ticker symbol (e.g., "^NSEI")
         
     Returns:
-        Current price as float
+        Current price as float or None if all methods fail
     """
     try:
         ticker = yf.Ticker(symbol)
         
-        # Try info first (most reliable for live price)
-        try:
-            info = ticker.info
-            price = info.get("regularMarketPrice") or info.get("currentPrice") or info.get("previousClose")
-            if price and price > 0:
-                logger.debug(f"Got live price for {symbol} from info: {price}")
-                return float(price)
-        except Exception as e:
-            logger.debug(f"Info fetch failed for {symbol}: {e}")
-        
-        # Try fast_info
-        try:
-            fast_info = ticker.fast_info
-            price = fast_info.get("lastPrice") or fast_info.get("regularMarketPrice")
-            if price and price > 0:
-                logger.debug(f"Got live price for {symbol} from fast_info: {price}")
-                return float(price)
-        except Exception as e:
-            logger.debug(f"Fast_info fetch failed for {symbol}: {e}")
-        
-        # Fallback to latest 1-minute data
+        # First priority: 1-minute intraday data (most recent during market hours)
         try:
             hist_1m = ticker.history(period="1d", interval="1m", auto_adjust=False)
             if not hist_1m.empty:
                 price = float(hist_1m["Close"].iloc[-1])
-                logger.debug(f"Got live price for {symbol} from 1-min data: {price}")
-                return price
+                if price > 0:
+                    logger.info(f"Got live price for {symbol} from 1-min intraday: {price}")
+                    return price
         except Exception as e:
             logger.debug(f"1-minute history fetch failed for {symbol}: {e}")
         
-        logger.warning(f"Could not get live price for {symbol}")
+        # Second priority: info (tick data during market hours)
+        try:
+            info = ticker.info
+            price = info.get("regularMarketPrice") or info.get("currentPrice") or info.get("previousClose")
+            if price and price > 0:
+                logger.info(f"Got live price for {symbol} from info: {price}")
+                return float(price)
+        except Exception as e:
+            logger.debug(f"Info fetch failed for {symbol}: {e}")
+        
+        # Third priority: fast_info
+        try:
+            fast_info = ticker.fast_info
+            price = fast_info.get("lastPrice") or fast_info.get("regularMarketPrice")
+            if price and price > 0:
+                logger.info(f"Got live price for {symbol} from fast_info: {price}")
+                return float(price)
+        except Exception as e:
+            logger.debug(f"Fast_info fetch failed for {symbol}: {e}")
+        
+        # Fallback: 5-minute data
+        try:
+            hist_5m = ticker.history(period="5d", interval="5m", auto_adjust=False)
+            if not hist_5m.empty:
+                price = float(hist_5m["Close"].iloc[-1])
+                if price > 0:
+                    logger.info(f"Got live price for {symbol} from 5-min data: {price}")
+                    return price
+        except Exception as e:
+            logger.debug(f"5-minute history fetch failed for {symbol}: {e}")
+        
+        logger.warning(f"Could not get live price for {symbol} through any method")
         return None
         
     except Exception as e:

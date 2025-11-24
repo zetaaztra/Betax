@@ -8,6 +8,7 @@ import logging
 from datetime import datetime, timezone
 from pathlib import Path
 import sys
+import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -60,7 +61,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def build_market_block(nifty_df, vix_df) -> dict:
+def build_market_block(nifty_df, vix_df, intraday_df=None) -> dict:
     """Build market snapshot block."""
     # Default values if dataframes are empty
     if len(nifty_df) < 2:
@@ -79,11 +80,19 @@ def build_market_block(nifty_df, vix_df) -> dict:
     
     latest_nifty = nifty_df.iloc[-1]
     prev_nifty = nifty_df.iloc[-2]
-    latest_vix = vix_df.iloc[-1] if len(vix_df) > 0 else latest_nifty
-    prev_vix = vix_df.iloc[-2] if len(vix_df) > 1 else latest_nifty
+    latest_vix = vix_df.iloc[-1] if len(vix_df) > 0 else pd.Series({"Close": 15.0, "Open": 15.0, "High": 15.0, "Low": 15.0})
+    prev_vix = vix_df.iloc[-2] if len(vix_df) > 1 else latest_vix
     
-    spot = float(latest_nifty["Close"])
-    spot_change = float(latest_nifty["Close"] - prev_nifty["Close"])
+    # Use live intraday price if available, otherwise use daily close
+    if intraday_df is not None and len(intraday_df) > 0:
+        spot = float(intraday_df["Close"].iloc[-1])
+        logger.debug(f"Using intraday spot price: {spot}")
+    else:
+        spot = float(latest_nifty["Close"])
+        logger.debug(f"Using daily spot price: {spot}")
+    
+    # For change calculation, use the last daily close as reference
+    spot_change = spot - float(prev_nifty["Close"])
     spot_change_pct = spot_change / float(prev_nifty["Close"]) if float(prev_nifty["Close"]) > 0 else 0
     
     vix = float(latest_vix["Close"])
@@ -101,8 +110,6 @@ def build_market_block(nifty_df, vix_df) -> dict:
         "vix_change_pct": float(vix_change_pct),
         "regime": regime
     }
-
-
 def build_direction_block(
     dir_feats, today_intraday_feats, gamma_feats, nifty_df, vix_df, models
 ) -> dict:
@@ -203,6 +210,36 @@ def build_buyer_block(buy_feats, gamma_feats, intraday_df, nifty, models) -> dic
     }
 
 
+def _update_market_block_with_live_price(market_block: dict) -> dict:
+    """
+    Try to update market block with live spot price.
+    
+    Args:
+        market_block: Current market block dict
+        
+    Returns:
+        Updated market block with live price if available
+    """
+    from data_fetcher import get_live_price
+    
+    try:
+        live_price = get_live_price("^NSEI")
+        if live_price and live_price > 0:
+            # Calculate changes based on live price
+            prev_close = market_block.get("spot", 19800) - market_block.get("spot_change", 0)
+            spot_change = live_price - prev_close
+            spot_change_pct = spot_change / prev_close if prev_close > 0 else 0
+            
+            market_block["spot"] = live_price
+            market_block["spot_change"] = spot_change
+            market_block["spot_change_pct"] = float(spot_change_pct)
+            logger.info(f"Updated market block with live spot price: {live_price}")
+    except Exception as e:
+        logger.debug(f"Could not update with live price: {e}")
+    
+    return market_block
+
+
 def _get_horizon_label(h_str: str) -> str:
     """Map horizon string to label."""
     mapping = {
@@ -283,7 +320,11 @@ def main():
         
         # 3. Build blocks
         logger.info("Computing predictions...")
-        market_block = build_market_block(nifty, vix)
+        market_block = build_market_block(nifty, vix, intraday)
+        
+        # Try to enhance with live price if available
+        market_block = _update_market_block_with_live_price(market_block)
+        
         direction_block = build_direction_block(dir_feats, today_intraday_feats, gamma_feats, nifty, vix, dir_models)
         seller_block = build_seller_block(sel_feats, nifty, sel_models)
         buyer_block = build_buyer_block(buy_feats, gamma_feats, intraday, nifty, buy_models)
