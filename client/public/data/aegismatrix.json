@@ -1,5 +1,5 @@
 {
-  "generated_at": "2025-11-25T10:10:21.806770Z",
+  "generated_at": "2025-11-25T10:19:26.193206Z",
   "market": {
     "spot": 25860.30078125,
     "spot_change": -99.19921875,
@@ -15,47 +15,47 @@
       "expected_move_points": 30.0,
       "conviction": 0.056289718355621965,
       "intraday_volatility_score": 0.008490399634252124,
-      "last_update": "2025-11-25T10:10:21.793333Z"
+      "last_update": "2025-11-25T10:19:26.179668Z"
     },
     "horizons": {
       "t1": {
         "label": "Tomorrow",
         "direction": "DOWN",
-        "expected_move_points": 108.0027847290039,
+        "expected_move_points": 105.61316680908203,
         "conviction": 0.34
       },
       "t3": {
         "label": "Next 3 Days",
         "direction": "DOWN",
-        "expected_move_points": 187.0663105095588,
+        "expected_move_points": 182.92737086157706,
         "conviction": 0.34
       },
       "t5": {
         "label": "This Week",
         "direction": "DOWN",
-        "expected_move_points": 241.50156841332895,
+        "expected_move_points": 236.158220304132,
         "conviction": 0.34
       },
       "t10": {
         "label": "Next Week",
         "direction": "DOWN",
-        "expected_move_points": 341.53479338450364,
+        "expected_move_points": 333.97815801999667,
         "conviction": 0.34
       },
       "t20": {
         "label": "This Month",
         "direction": "DOWN",
-        "expected_move_points": 483.0031368266579,
+        "expected_move_points": 472.316440608264,
         "conviction": 0.34
       },
       "t40": {
         "label": "Next Month",
         "direction": "DOWN",
-        "expected_move_points": 683.0695867690073,
+        "expected_move_points": 667.9563160399933,
         "conviction": 0.34
       }
     },
-    "risk_score": 0.19321342751312315
+    "risk_score": 0.12657691486026879
   },
   "seller": {
     "safe_range": {
@@ -165,7 +165,7 @@
       }
     ],
     "theta_edge": {
-      "score": 0.23053069412708282,
+      "score": 0.2293235808610916,
       "label": "DONT_WASTE_PREMIUM"
     },
     "regime": "MEAN_REVERT",
