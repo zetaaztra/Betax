@@ -1,100 +1,100 @@
 {
-  "generated_at": "2025-11-25T07:16:41.655632Z",
+  "generated_at": "2025-11-25T07:43:42.661520Z",
   "market": {
-    "spot": 25990.849609375,
-    "spot_change": 31.349609375,
-    "spot_change_pct": 0.0012076353309963597,
-    "vix": 12.52750015258789,
-    "vix_change": -0.7124996185302734,
-    "vix_change_pct": -0.05381417151415104,
-    "regime": "LOW_VOL_BULL"
+    "spot": 25987.5,
+    "spot_change": -80.650390625,
+    "spot_change_pct": -0.003093828653605,
+    "vix": 12.484999656677246,
+    "vix_change": -0.755000114440918,
+    "vix_change_pct": -0.057024178813649296,
+    "regime": "SIDEWAYS_CHOP"
   },
   "direction": {
     "today": {
       "direction": "NEUTRAL",
       "expected_move_points": 30.0,
-      "conviction": 0.056289718355621965,
+      "conviction": 0.004061870262410894,
       "intraday_volatility_score": 0.008490399634252124,
-      "last_update": "2025-11-25T07:16:41.642681Z"
+      "last_update": "2025-11-25T07:43:42.647983Z"
     },
     "horizons": {
       "t1": {
         "label": "Tomorrow",
         "direction": "DOWN",
-        "expected_move_points": 86.82215881347656,
+        "expected_move_points": 136.0225372314453,
         "conviction": 0.34
       },
       "t3": {
         "label": "Next 3 Days",
         "direction": "DOWN",
-        "expected_move_points": 150.38039028775538,
+        "expected_move_points": 235.59794545929253,
         "conviction": 0.34
       },
       "t5": {
         "label": "This Week",
         "direction": "DOWN",
-        "expected_move_points": 194.1402490602161,
+        "expected_move_points": 304.1556397215078,
         "conviction": 0.34
       },
       "t10": {
         "label": "Next Week",
         "direction": "DOWN",
-        "expected_move_points": 274.5557732234481,
+        "expected_move_points": 430.1410307664212,
         "conviction": 0.34
       },
       "t20": {
         "label": "This Month",
         "direction": "DOWN",
-        "expected_move_points": 388.2804981204322,
+        "expected_move_points": 608.3112794430156,
         "conviction": 0.34
       },
       "t40": {
         "label": "Next Month",
         "direction": "DOWN",
-        "expected_move_points": 549.1115464468962,
+        "expected_move_points": 860.2820615328424,
         "conviction": 0.34
       }
     },
-    "risk_score": 0.17596191756251167
+    "risk_score": 0.07558683381135783
   },
   "seller": {
     "safe_range": {
-      "lower": 25932.63812753124,
-      "upper": 26052.26030996876,
+      "lower": 25896.648909811207,
+      "upper": 26022.351090188793,
       "horizon_days": 30
     },
     "max_pain": {
-      "lower": 25597.105852625467,
-      "upper": 26497.829240996674,
+      "lower": 25564.465100511537,
+      "upper": 26464.432068107042,
       "confidence": 0.6
     },
     "trap": {
-      "score": 0.7366268634796143,
+      "score": 0.9112563729286194,
       "label": "HIGH",
-      "iv_percentile": 0.376984126984127,
-      "rv_percentile": 0.051587301587301584
+      "iv_percentile": 0.44047619047619047,
+      "rv_percentile": 0.07539682539682539
     },
     "skew": {
-      "put_skew": -0.05301945612570343,
-      "call_skew": 0.059308460795794715,
-      "net_skew": -0.11232791692149816
+      "put_skew": -0.03840698328085094,
+      "call_skew": 0.04160264766767391,
+      "net_skew": -0.08000963094852484
     },
     "expiry_stress": {
-      "score": 0.0013022313360124826,
+      "score": 0.0007849435787647963,
       "label": "CALM"
     },
     "breach_probabilities": [
       {
         "distance": 100,
-        "probability": 0.014198795393690051
+        "probability": 0.034147496264542276
       },
       {
         "distance": 200,
-        "probability": 6.251411164242151e-07
+        "probability": 3.680286169149838e-06
       },
       {
         "distance": 300,
-        "probability": 6.433949303217282e-14
+        "probability": 1.6693313398263854e-12
       },
       {
         "distance": 400,
@@ -112,43 +112,43 @@
   },
   "buyer": {
     "breakout_today": {
-      "score": 0.12516489624977112,
+      "score": 0.036384161561727524,
       "label": "LOW"
     },
     "breakout_next": [
       {
         "day_offset": 1,
-        "score": 0.10639016181230544,
+        "score": 0.030926537327468393,
         "label": "LOW"
       },
       {
         "day_offset": 2,
-        "score": 0.10639016181230544,
+        "score": 0.030926537327468393,
         "label": "LOW"
       },
       {
         "day_offset": 3,
-        "score": 0.07509893774986266,
+        "score": 0.021830496937036512,
         "label": "LOW"
       },
       {
         "day_offset": 4,
-        "score": 0.07509893774986266,
+        "score": 0.021830496937036512,
         "label": "LOW"
       },
       {
         "day_offset": 5,
-        "score": 0.05632420331239701,
+        "score": 0.016372872702777385,
         "label": "LOW"
       }
     ],
     "spike_direction_bias": {
-      "up_prob": 0.4855583906173706,
-      "down_prob": 0.5144416093826294
+      "up_prob": 0.9292875528335571,
+      "down_prob": 0.07071244716644287
     },
     "breakout_levels": {
-      "upper": 26165.798230040342,
-      "lower": 25819.100207459658
+      "upper": 26141.659765366912,
+      "lower": 25777.340234633088
     },
     "gamma_windows": [
       {
@@ -165,7 +165,7 @@
       }
     ],
     "theta_edge": {
-      "score": 0.16526401042938232,
+      "score": 0.20409196615219116,
       "label": "DONT_WASTE_PREMIUM"
     },
     "regime": "MEAN_REVERT",
