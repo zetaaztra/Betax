@@ -1,12 +1,12 @@
 {
-  "generated_at": "2025-11-27T09:43:00.104299Z",
+  "generated_at": "2025-11-27T10:18:17.178337Z",
   "market": {
-    "spot": 26211.900390625,
-    "spot_change": 6.599609375,
-    "spot_change_pct": 0.00025184253484020484,
-    "vix": 11.795000076293945,
-    "vix_change": -0.17500019073486328,
-    "vix_change_pct": -0.01461989864920043,
+    "spot": 26220.80078125,
+    "spot_change": 15.5,
+    "spot_change_pct": 0.0005914833845788297,
+    "vix": 11.78499984741211,
+    "vix_change": -0.18500041961669922,
+    "vix_change_pct": -0.01545533963990629,
     "regime": "LOW_VOL_BULL"
   },
   "direction": {
@@ -15,7 +15,7 @@
       "expected_move_points": 30.0,
       "conviction": 0.061247434955839536,
       "intraday_volatility_score": 0.008490399634252124,
-      "last_update": "2025-11-27T09:43:00.091028Z"
+      "last_update": "2025-11-27T10:18:17.164718Z"
     },
     "horizons": {
       "t1": {
@@ -55,29 +55,29 @@
         "conviction": 0.34
       }
     },
-    "risk_score": 0.401236321425795
+    "risk_score": 0.031065653398646087
   },
   "seller": {
     "safe_range": {
-      "lower": 26141.990524335026,
-      "upper": 26282.810256914974,
+      "lower": 26145.13225488179,
+      "upper": 26285.96930761821,
       "horizon_days": 30
     },
     "max_pain": {
-      "lower": 25814.211405572998,
-      "upper": 26721.55717496536,
+      "lower": 25817.314043757782,
+      "upper": 26724.768654921107,
       "confidence": 0.6
     },
     "trap": {
       "score": 0.41598352789878845,
       "label": "MEDIUM",
-      "iv_percentile": 0.24206349206349206,
+      "iv_percentile": 0.23015873015873015,
       "rv_percentile": 0.2261904761904762
     },
     "skew": {
-      "put_skew": -0.06340544602969213,
-      "call_skew": 0.07261364743684393,
-      "net_skew": -0.13601909346653607
+      "put_skew": -0.06375239213620232,
+      "call_skew": 0.07306904494947589,
+      "net_skew": -0.1368214370856782
     },
     "expiry_stress": {
       "score": 0.0008579164277762175,
@@ -86,15 +86,15 @@
     "breach_probabilities": [
       {
         "distance": 100,
-        "probability": 0.06647638343889417
+        "probability": 0.06651970515459382
       },
       {
         "distance": 200,
-        "probability": 4.118117228557594e-05
+        "probability": 4.1277734802225297e-05
       },
       {
         "distance": 300,
-        "probability": 3.370566048488399e-10
+        "probability": 3.3879210548093397e-10
       },
       {
         "distance": 400,
@@ -110,33 +110,33 @@
   },
   "buyer": {
     "breakout_today": {
-      "score": 0.0045313346199691296,
+      "score": 0.004811313934624195,
       "label": "LOW"
     },
     "breakout_next": [
       {
         "day_offset": 1,
-        "score": 0.00385163442697376,
+        "score": 0.004089616844430565,
         "label": "LOW"
       },
       {
         "day_offset": 2,
-        "score": 0.00385163442697376,
+        "score": 0.004089616844430565,
         "label": "LOW"
       },
       {
         "day_offset": 3,
-        "score": 0.002718800771981478,
+        "score": 0.002886788360774517,
         "label": "LOW"
       },
       {
         "day_offset": 4,
-        "score": 0.002718800771981478,
+        "score": 0.002886788360774517,
         "label": "LOW"
       },
       {
         "day_offset": 5,
-        "score": 0.0020391005789861085,
+        "score": 0.002165091270580888,
         "label": "LOW"
       }
     ],
@@ -145,8 +145,8 @@
       "down_prob": 0.2590141296386719
     },
     "breakout_levels": {
-      "upper": 26416.467570436365,
-      "lower": 26008.333210813635
+      "upper": 26419.64306035264,
+      "lower": 26011.45850214736
     },
     "gamma_windows": [
       {
@@ -163,7 +163,7 @@
       }
     ],
     "theta_edge": {
-      "score": 0.22092702984809875,
+      "score": 0.22462999820709229,
       "label": "DONT_WASTE_PREMIUM"
     },
     "regime": "MEAN_REVERT",
