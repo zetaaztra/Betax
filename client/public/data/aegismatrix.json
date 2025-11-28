@@ -1,9 +1,9 @@
 {
-  "generated_at": "2025-11-28T06:56:38.095931Z",
+  "generated_at": "2025-11-28T07:16:03.808906Z",
   "market": {
-    "spot": 26222.30078125,
-    "spot_change": 6.75,
-    "spot_change_pct": 0.00025748076232782276,
+    "spot": 26228.44921875,
+    "spot_change": 12.8984375,
+    "spot_change_pct": 0.0004920147437537447,
     "vix": 11.789999961853027,
     "vix_change": -0.18000030517578125,
     "vix_change_pct": -0.015037619144553361,
@@ -15,7 +15,7 @@
       "expected_move_points": 30.0,
       "conviction": 0.0661009134703132,
       "intraday_volatility_score": 0.008490399634252124,
-      "last_update": "2025-11-28T06:56:38.082322Z"
+      "last_update": "2025-11-28T07:16:03.795483Z"
     },
     "horizons": {
       "t1": {
@@ -55,12 +55,12 @@
         "conviction": 0.34
       }
     },
-    "risk_score": 0.19172526574466514
+    "risk_score": 0.18676520570658167
   },
   "seller": {
     "safe_range": {
-      "lower": 26151.91282043197,
-      "upper": 26292.78639831803,
+      "lower": 26158.34666358401,
+      "upper": 26299.25489891599,
       "horizon_days": 30
     },
     "max_pain": {
@@ -86,15 +86,15 @@
     "breach_probabilities": [
       {
         "distance": 100,
-        "probability": 0.06661110839083362
+        "probability": 0.06669789320305641
       },
       {
         "distance": 200,
-        "probability": 4.1481999546455484e-05
+        "probability": 4.167661023979363e-05
       },
       {
         "distance": 300,
-        "probability": 3.4247849001189934e-10
+        "probability": 3.460112196762566e-10
       },
       {
         "distance": 400,
@@ -145,8 +145,8 @@
       "down_prob": 0.21561473608016968
     },
     "breakout_levels": {
-      "upper": 26426.494818448056,
-      "lower": 26018.204400301944
+      "upper": 26432.996213733648,
+      "lower": 26024.605348766352
     },
     "gamma_windows": [
       {
