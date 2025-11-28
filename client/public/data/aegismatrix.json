@@ -1,9 +1,9 @@
 {
-  "generated_at": "2025-11-28T09:29:38.762934Z",
+  "generated_at": "2025-11-28T09:41:02.268546Z",
   "market": {
-    "spot": 26210.900390625,
-    "spot_change": -4.650390625,
-    "spot_change_pct": -0.00017739053677735708,
+    "spot": 26205.69921875,
+    "spot_change": -9.8515625,
+    "spot_change_pct": -0.0003757907885363247,
     "vix": 11.24250030517578,
     "vix_change": -0.5474996566772479,
     "vix_change_pct": -0.04643763006350321,
@@ -15,7 +15,7 @@
       "expected_move_points": 30.0,
       "conviction": 0.016170242584531286,
       "intraday_volatility_score": 0.008639463609468202,
-      "last_update": "2025-11-28T09:29:38.749625Z"
+      "last_update": "2025-11-28T09:41:02.253050Z"
     },
     "horizons": {
       "t1": {
@@ -55,7 +55,7 @@
         "conviction": 0.1
       }
     },
-    "risk_score": 0.14663306881120247
+    "risk_score": 0.0
   },
   "seller": {
     "safe_range": {
