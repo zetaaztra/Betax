@@ -1,12 +1,12 @@
 {
-  "generated_at": "2025-11-27T10:18:17.178337Z",
+  "generated_at": "2025-11-28T03:56:52.638859Z",
   "market": {
-    "spot": 26220.80078125,
-    "spot_change": 15.5,
-    "spot_change_pct": 0.0005914833845788297,
-    "vix": 11.78499984741211,
-    "vix_change": -0.18500041961669922,
-    "vix_change_pct": -0.01545533963990629,
+    "spot": 26217.400390625,
+    "spot_change": 12.099609375,
+    "spot_change_pct": 0.0004617237358197896,
+    "vix": 10.922499656677246,
+    "vix_change": -0.8675003051757812,
+    "vix_change_pct": -0.07357933061769381,
     "regime": "LOW_VOL_BULL"
   },
   "direction": {
@@ -15,47 +15,47 @@
       "expected_move_points": 30.0,
       "conviction": 0.061247434955839536,
       "intraday_volatility_score": 0.008490399634252124,
-      "last_update": "2025-11-27T10:18:17.164718Z"
+      "last_update": "2025-11-28T03:56:52.624915Z"
     },
     "horizons": {
       "t1": {
         "label": "Tomorrow",
         "direction": "DOWN",
-        "expected_move_points": 55.6171989440918,
+        "expected_move_points": 86.17266082763672,
         "conviction": 0.34
       },
       "t3": {
         "label": "Next 3 Days",
         "direction": "DOWN",
-        "expected_move_points": 96.3318143458331,
+        "expected_move_points": 149.25542677686713,
         "conviction": 0.34
       },
       "t5": {
         "label": "This Week",
         "direction": "DOWN",
-        "expected_move_points": 124.36383755711879,
+        "expected_move_points": 192.687927412629,
         "conviction": 0.34
       },
       "t10": {
         "label": "Next Week",
         "direction": "DOWN",
-        "expected_move_points": 175.87702574204187,
+        "expected_move_points": 272.5018802525024,
         "conviction": 0.34
       },
       "t20": {
         "label": "This Month",
         "direction": "DOWN",
-        "expected_move_points": 248.72767511423757,
+        "expected_move_points": 385.375854825258,
         "conviction": 0.34
       },
       "t40": {
         "label": "Next Month",
         "direction": "DOWN",
-        "expected_move_points": 351.75405148408373,
+        "expected_move_points": 545.0037605050048,
         "conviction": 0.34
       }
     },
-    "risk_score": 0.031065653398646087
+    "risk_score": 0.1120919990328499
   },
   "seller": {
     "safe_range": {
@@ -69,9 +69,9 @@
       "confidence": 0.6
     },
     "trap": {
-      "score": 0.41598352789878845,
+      "score": 0.5611679553985596,
       "label": "MEDIUM",
-      "iv_percentile": 0.23015873015873015,
+      "iv_percentile": 0.24206349206349206,
       "rv_percentile": 0.2261904761904762
     },
     "skew": {
@@ -110,39 +110,39 @@
   },
   "buyer": {
     "breakout_today": {
-      "score": 0.004811313934624195,
+      "score": 0.005480329506099224,
       "label": "LOW"
     },
     "breakout_next": [
       {
         "day_offset": 1,
-        "score": 0.004089616844430565,
+        "score": 0.00465828008018434,
         "label": "LOW"
       },
       {
         "day_offset": 2,
-        "score": 0.004089616844430565,
+        "score": 0.00465828008018434,
         "label": "LOW"
       },
       {
         "day_offset": 3,
-        "score": 0.002886788360774517,
+        "score": 0.0032881977036595344,
         "label": "LOW"
       },
       {
         "day_offset": 4,
-        "score": 0.002886788360774517,
+        "score": 0.0032881977036595344,
         "label": "LOW"
       },
       {
         "day_offset": 5,
-        "score": 0.002165091270580888,
+        "score": 0.002466148277744651,
         "label": "LOW"
       }
     ],
     "spike_direction_bias": {
-      "up_prob": 0.7409858703613281,
-      "down_prob": 0.2590141296386719
+      "up_prob": 0.7843852639198303,
+      "down_prob": 0.21561473608016968
     },
     "breakout_levels": {
       "upper": 26419.64306035264,
@@ -163,7 +163,7 @@
       }
     ],
     "theta_edge": {
-      "score": 0.22462999820709229,
+      "score": 0.2032051682472229,
       "label": "DONT_WASTE_PREMIUM"
     },
     "regime": "MEAN_REVERT",
