@@ -234,6 +234,319 @@ sequenceDiagram
     Note over USER: See Live Data
 ```
 
+### Model Training & Inference Lifecycle
+
+```mermaid
+graph TB
+    subgraph "Weekly Training (Saturdays)"
+        T1[GitHub Actions<br/>Saturday 00:00 UTC]
+        T2[Fetch 5 Years<br/>Historical Data]
+        T3[Build Features<br/>Technical Indicators]
+        T4{Train Models}
+        T5[Direction:<br/>BiLSTM + XGBoost]
+        T6[Seller:<br/>RandomForest + Logistic]
+        T7[Buyer:<br/>XGBoost + Linear]
+        T8[Save Models<br/>models/*.pkl, *.pt]
+        T9[Commit to Git]
+        
+        T1 --> T2
+        T2 --> T3
+        T3 --> T4
+        T4 --> T5
+        T4 --> T6
+        T4 --> T7
+        T5 --> T8
+        T6 --> T8
+        T7 --> T8
+        T8 --> T9
+    end
+    
+    subgraph "Daily Inference (Market Hours)"
+        I1[GitHub Actions<br/>Every 30min M-F]
+        I2[Run infer.py]
+        I3[Load Trained Models]
+        I4[direction/model.py<br/>load_models]
+        I5[seller/model.py<br/>load_models]
+        I6[buyer/model.py<br/>load_models]
+        I7{Models Loaded?}
+        I8[Fetch Live Data]
+        I9[Build Features]
+        I10[Run Predictions]
+        I11[Direction Forecasts<br/>T+1 to T+40]
+        I12[Seller Signals<br/>Safe ranges, breach risks]
+        I13[Buyer Signals<br/>Breakout levels, gamma windows]
+        I14[Assemble JSON Payload]
+        I15[Commit aegismatrix.json]
+        I16[Cloudflare Deploy]
+        
+        I1 --> I2
+        I2 --> I3
+        I3 --> I4
+        I3 --> I5
+        I3 --> I6
+        I4 --> I7
+        I5 --> I7
+        I6 --> I7
+        I7 -->|Success| I8
+        I7 -->|Failed| F1[Use Fallback Heuristics]
+        F1 --> I8
+        I8 --> I9
+        I9 --> I10
+        I10 --> I11
+        I10 --> I12
+        I10 --> I13
+        I11 --> I14
+        I12 --> I14
+        I13 --> I14
+        I14 --> I15
+        I15 --> I16
+    end
+    
+    T9 -.->|Models updated| I3
+    
+    style T8 fill:#10b981
+    style I3 fill:#3b82f6
+    style I14 fill:#f59e0b
+    style T5 fill:#d97706
+    style T6 fill:#059669
+    style T7 fill:#7c3aed
+```
+
+### Model Loading Process (infer.py)
+
+```python
+# 1. Import model loaders
+from direction.model import load_models as load_direction_models
+from seller.model import load_models as load_seller_models
+from buyer.model import load_models as load_buyer_models
+
+# 2. Load trained models at startup
+direction_models = load_direction_models()  
+# Returns: (bilstm_model, magnitude_model, scaler)
+# Files: direction_bilstm.pt, direction_magnitude.pkl
+
+seller_models = load_seller_models()
+# Returns: (trap_model, regime_model, breach_model)
+# Files: seller_trap.pkl, seller_regime.pkl, seller_breach.pkl
+
+buyer_models = load_buyer_models()
+# Returns: (breakout_model, spike_dir_model, theta_model)
+# Files: buyer_breakout.pkl, buyer_spike_dir.pkl, buyer_theta.pkl
+
+# 3. Fetch live market data
+nifty_df, vix_df, intraday_df = fetch_market_data()
+
+# 4. Build features from raw data
+direction_features = build_direction_features(nifty_df, vix_df)
+seller_features = build_seller_features(nifty_df, vix_df)
+buyer_features = build_buyer_features(nifty_df, vix_df)
+
+# 5. Use models for predictions
+direction_predictions = predict_direction_horizons(
+    direction_features, 
+    direction_models  # Uses loaded models
+)
+
+seller_predictions = predict_seller_signals(
+    seller_features,
+    seller_models  # Uses loaded models
+)
+
+buyer_predictions = predict_buyer_signals(
+    buyer_features,
+    buyer_models  # Uses loaded models
+)
+
+# 6. Assemble final JSON payload
+payload = {
+    "market": market_block,
+    "direction": direction_predictions,
+    "seller": seller_predictions,
+    "buyer": buyer_predictions
+}
+
+# 7. Write to client/public/data/aegismatrix.json
+# 8. Commit and trigger Cloudflare deployment
+```
+
+### Model Files Structure
+
+```
+models/
+├── direction_bilstm.pt          # PyTorch LSTM (2.1 MB)
+├── direction_magnitude.pkl      # XGBoost regressor (0.8 MB)
+├── seller_trap.pkl              # RandomForest (0.6 MB)
+├── seller_regime.pkl            # RandomForest (0.5 MB)
+├── seller_breach.pkl            # Logistic regression (0.4 MB)
+├── buyer_breakout.pkl           # XGBoost (0.7 MB)
+├── buyer_spike_dir.pkl          # XGBoost (0.6 MB)
+├── buyer_theta.pkl              # Linear regression (0.3 MB)
+└── buyer_gamma_hmm.pkl          # HMM (0.3 MB)
+
+Total: 6.24 MB
+```
+
+### What's Inside Trained Models?
+
+Each trained model file (`.pkl` or `.pt`) contains:
+
+#### 1. **Model Weights & Biases**
+The learned parameters from training on 5 years of historical data:
+- **RandomForest:** Decision tree structures, split points, leaf values
+- **XGBoost:** Boosted tree ensemble, feature importances, split thresholds
+- **BiLSTM:** Neural network weights, LSTM cell states, embeddings
+- **Linear/Logistic:** Coefficient vectors, intercepts
+
+#### 2. **Model Architecture Metadata**
+Configuration that defines how the model works:
+- Number of features expected (25 for direction, 28 for seller, 29 for buyer)
+- Number of estimators/trees (e.g., 200 for XGBoost)
+- Hyperparameters (learning rate, max depth, dropout rates)
+- Layer sizes for neural networks
+
+#### 3. **Feature Scalers (where applicable)**
+Normalization parameters learned during training:
+```python
+scaler = StandardScaler()
+# Stores: mean and std deviation for each feature
+# Used to normalize new data the same way as training data
+```
+
+#### 4. **Class Labels & Mappings**
+For classification models:
+```python
+# Direction: [0=DOWN, 1=NEUTRAL, 2=UP]
+# Seller Trap: [0=NO_TRAP, 1=TRAP]
+# Buyer Regime: [0=CHOPPY, 1=MEAN_REVERTING, 2=TREND_FOLLOWING]
+```
+
+### How `infer.py` Uses Trained Models
+
+```python
+# STEP 1: Load models at startup
+direction_models = load_direction_models()
+# Unpacks to: (bilstm_model, magnitude_model, scaler)
+
+# STEP 2: Prepare new input data
+current_features = build_direction_features(nifty_df, vix_df)
+# Returns: DataFrame with 25 columns (RSI, MACD, ATR, etc.)
+
+# STEP 3: Scale features using the SAME scaler from training
+scaled_features = scaler.transform(current_features)
+
+# STEP 4: Get predictions from loaded models
+# Direction Classification
+direction_probs = bilstm_model.predict(scaled_features)
+# Returns: [P(DOWN)=0.2, P(NEUTRAL)=0.3, P(UP)=0.5]
+predicted_direction = "UP"  # Highest probability
+
+# Expected Move Magnitude
+expected_move = magnitude_model.predict(scaled_features)
+# Returns: 32.5 (points)
+
+# STEP 5: Use predictions in dashboard
+payload = {
+    "direction": predicted_direction,  # "UP"
+    "conviction": 0.5,                 # 50%
+    "expected_move_points": 32.5
+}
+```
+
+### Example: BiLSTM Model File (direction_bilstm.pt)
+
+**File Size:** 2.1 MB  
+**Format:** PyTorch serialized state dict
+
+**Contents:**
+```python
+{
+    # LSTM Layer 1 Weights
+    'lstm.weight_ih_l0': Tensor(shape=[256, 25]),  # Input to hidden
+    'lstm.weight_hh_l0': Tensor(shape=[256, 64]),  # Hidden to hidden
+    'lstm.bias_ih_l0': Tensor(shape=[256]),
+    'lstm.bias_hh_l0': Tensor(shape=[256]),
+    
+    # LSTM Layer 2 Weights
+    'lstm.weight_ih_l1': Tensor(shape=[256, 128]), # Bidirectional
+    'lstm.weight_hh_l1': Tensor(shape=[256, 64]),
+    
+    # Fully Connected Layer
+    'fc.weight': Tensor(shape=[3, 128]),  # 128 → 3 classes
+    'fc.bias': Tensor(shape=[3]),
+    
+    # Metadata
+    'epoch': 50,
+    'best_accuracy': 0.58,
+    'feature_names': ['rsi_14', 'macd', 'atr_14', ...]
+}
+```
+
+### Example: XGBoost Model File (buyer_breakout.pkl)
+
+**File Size:** 0.7 MB  
+**Format:** Joblib serialized object
+
+**Contents:**
+```python
+{
+    # Boosted Trees (200 estimators)
+    'trees': [
+        Tree(feature=[4, 12, 7], threshold=[0.5, 1.2, 0.8], ...),
+        Tree(feature=[2, 15, 9], threshold=[0.3, 2.1, 0.5], ...),
+        # ... 200 trees total
+    ],
+    
+    # Feature Importance
+    'feature_importances_': [
+        ('atr_14', 0.18),
+        ('vol_20d', 0.15),
+        ('rsi_14', 0.12),
+        # ... for all 29 features
+    ],
+    
+    # Hyperparameters
+    'n_estimators': 200,
+    'learning_rate': 0.05,
+    'max_depth': 6,
+    'subsample': 0.8,
+    
+    # Training Metadata
+    'n_features_in_': 29,
+    'classes_': [0, 1],  # NO_BREAKOUT, BREAKOUT
+}
+```
+
+### Why Models Need to Be Loaded?
+
+**Without models:** `infer.py` would only use hardcoded heuristics:
+```python
+# Fallback logic (no ML model)
+if vol_20d > 0.02:
+    breakout_score = 0.7
+else:
+    breakout_score = 0.3
+```
+
+**With trained models:** `infer.py` uses learned patterns from 5 years of data:
+```python
+# ML-based prediction
+breakout_score = model.predict_proba(features)[0, 1]
+# Uses 200 decision trees trained on historical breakouts
+# Considers complex interactions between 29 features
+```
+
+### Model Update Frequency
+
+| Event | What Happens | Files Updated |
+|-------|--------------|---------------|
+| **Saturday 00:00 UTC** | Weekly retraining | All 9 model files (6.24 MB) |
+| **Every 30min M-F** | Load existing models | No changes, just loaded into memory |
+| **Manual retrain** | On-demand training | All 9 model files |
+
+**Result:** Models contain 5 years of learned market patterns, continuously updated weekly to adapt to regime changes.
+
+
+
 ---
 
 ## 🤖 ML Models & Training
