@@ -1,21 +1,21 @@
 {
-  "generated_at": "2025-11-28T03:56:52.638859Z",
+  "generated_at": "2025-11-28T04:02:18.912102Z",
   "market": {
-    "spot": 26217.400390625,
-    "spot_change": 12.099609375,
-    "spot_change_pct": 0.0004617237358197896,
-    "vix": 10.922499656677246,
-    "vix_change": -0.8675003051757812,
-    "vix_change_pct": -0.07357933061769381,
+    "spot": 26239.599609375,
+    "spot_change": 24.048828125,
+    "spot_change_pct": 0.0009173497183282644,
+    "vix": 11.789999961853027,
+    "vix_change": -0.18000030517578125,
+    "vix_change_pct": -0.015037619144553361,
     "regime": "LOW_VOL_BULL"
   },
   "direction": {
     "today": {
       "direction": "NEUTRAL",
       "expected_move_points": 30.0,
-      "conviction": 0.061247434955839536,
+      "conviction": 0.0661009134703132,
       "intraday_volatility_score": 0.008490399634252124,
-      "last_update": "2025-11-28T03:56:52.624915Z"
+      "last_update": "2025-11-28T04:02:18.898467Z"
     },
     "horizons": {
       "t1": {
@@ -55,12 +55,12 @@
         "conviction": 0.34
       }
     },
-    "risk_score": 0.1120919990328499
+    "risk_score": 0.10765790793879769
   },
   "seller": {
     "safe_range": {
-      "lower": 26145.13225488179,
-      "upper": 26285.96930761821,
+      "lower": 26165.775872721722,
+      "upper": 26306.724127278278,
       "horizon_days": 30
     },
     "max_pain": {
@@ -86,15 +86,15 @@
     "breach_probabilities": [
       {
         "distance": 100,
-        "probability": 0.06651970515459382
+        "probability": 0.06679817144859568
       },
       {
         "distance": 200,
-        "probability": 4.1277734802225297e-05
+        "probability": 4.190229015499369e-05
       },
       {
         "distance": 300,
-        "probability": 3.3879210548093397e-10
+        "probability": 3.501319234544553e-10
       },
       {
         "distance": 400,
@@ -145,8 +145,8 @@
       "down_prob": 0.21561473608016968
     },
     "breakout_levels": {
-      "upper": 26419.64306035264,
-      "lower": 26011.45850214736
+      "upper": 26440.50342584968,
+      "lower": 26031.99657415032
     },
     "gamma_windows": [
       {
