@@ -243,7 +243,11 @@ def compute_breakout_levels(features_df, nifty_df) -> dict:
         Dict with upper, lower levels
     """
     if isinstance(nifty_df, dict) or len(nifty_df) == 0:
-        spot = 26000
+        # Try to get spot from features if available
+        if not isinstance(features_df, dict) and "Close" in features_df.columns and len(features_df) > 0:
+            spot = float(features_df["Close"].iloc[-1])
+        else:
+            spot = 26000
     else:
         spot = float(nifty_df["Close"].iloc[-1])
     

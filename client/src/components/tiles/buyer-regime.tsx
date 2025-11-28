@@ -7,7 +7,7 @@ interface BuyerRegimeProps {
   testId: string;
 }
 
-const helpText = "Buyer Regime categorizes market behavior for option buyer strategies. TREND_FOLLOWING: strong directional momentum, buy directional options (calls in uptrend, puts in downtrend). MEAN_REVERTING: buy at extremes, fade moves. CHOPPY: avoid buying, theta decay dominates in indecisive markets.";
+const helpText = "• TREND_FOLLOWING: Strong momentum (Buy directional options - calls in uptrend, puts in downtrend).\n• MEAN_REVERTING: Buy at extremes (Fade moves).\n• CHOPPY: Indecisive market (Avoid buying - theta decay dominates).";
 
 export function BuyerRegime({ data, testId }: BuyerRegimeProps) {
   const getDetails = () => {
@@ -44,7 +44,7 @@ export function BuyerRegime({ data, testId }: BuyerRegimeProps) {
           {details.icon}
           <span className="text-xl font-bold">{details.label}</span>
         </div>
-        
+
         <div className="text-center">
           <div className="text-sm font-medium">{details.description}</div>
           <div className="text-xs text-muted-foreground mt-1">Current Buyer Environment</div>

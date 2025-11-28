@@ -6,13 +6,13 @@ interface HistoricalHitRateProps {
   context: "seller" | "buyer";
 }
 
-const sellerHelpText = "Historical Range Hit Rate shows how often NIFTY stayed within predicted safe ranges in the past. Higher rates (>75%) validate the model's accuracy. Lower rates (<60%) suggest increasing volatility or regime change. Use this to calibrate confidence in current safe range predictions.";
+const sellerHelpText = "• Range Accuracy: How often NIFTY stayed in safe zones.\n• >75%: High reliability (Model is syncing well).\n• <60%: Caution (Market changing regime).\n• Use: Calibrate your position size based on this.";
 
-const buyerHelpText = "Historical Spike Hit Rate measures how often predicted breakout days actually delivered significant moves. High rate (>65%) indicates reliable signals. Low rate (<50%) means model struggling - be extra selective. This is your backtest validation for trusting current breakout forecasts.";
+const buyerHelpText = "• Spike Accuracy: Success rate of predicted breakouts.\n• >65%: Reliable signals (Aggressive entry).\n• <50%: Choppy market (Be selective).\n• Use: Validate breakout signals before entry.";
 
 export function HistoricalHitRate({ rate, testId, context }: HistoricalHitRateProps) {
   const percentage = Math.round(rate * 100);
-  
+
   const getLevel = () => {
     if (percentage >= 75) return { label: "High Accuracy", color: "text-bullish", bg: "bg-bullish/10" };
     if (percentage >= 60) return { label: "Moderate Accuracy", color: "text-neutral", bg: "bg-neutral/10" };
@@ -22,9 +22,9 @@ export function HistoricalHitRate({ rate, testId, context }: HistoricalHitRatePr
   const level = getLevel();
 
   return (
-    <TileWrapper 
-      title={context === "seller" ? "Historical Range Hit Rate" : "Historical Spike Hit Rate"} 
-      helpText={context === "seller" ? sellerHelpText : buyerHelpText} 
+    <TileWrapper
+      title={context === "seller" ? "Historical Range Hit Rate" : "Historical Spike Hit Rate"}
+      helpText={context === "seller" ? sellerHelpText : buyerHelpText}
       testId={testId}
     >
       <div className="flex flex-col items-center gap-4">
@@ -39,7 +39,7 @@ export function HistoricalHitRate({ rate, testId, context }: HistoricalHitRatePr
 
         <div className="w-full space-y-1">
           <div className="h-3 bg-muted rounded-full overflow-hidden">
-            <div 
+            <div
               className={`h-full ${percentage >= 75 ? "bg-bullish" : percentage >= 60 ? "bg-neutral" : "bg-bearish"}`}
               style={{ width: `${percentage}%` }}
             />

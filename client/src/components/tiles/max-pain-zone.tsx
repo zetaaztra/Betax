@@ -6,7 +6,7 @@ interface MaxPainZoneProps {
   testId: string;
 }
 
-const helpText = "Max Pain Zone represents the strike price range where the maximum number of options (both calls and puts) expire worthless, causing maximum loss to option buyers. Market tends to gravitate toward this zone near expiry. Useful for predicting expiry-day pinning behavior and selecting short strikes.";
+const helpText = "• Max Pain: Strike where option buyers lose the most.\n• Gravity: Market tends to move here near expiry.\n• Use: Predict expiry pinning.\n• Strategy: Short strikes around this zone.";
 
 export function MaxPainZone({ data, testId }: MaxPainZoneProps) {
   const { lower, upper } = data.max_pain;

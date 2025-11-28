@@ -129,9 +129,15 @@ def build_direction_block(
         }
     
     # Today direction
+    # Use ATR for expected move if available, else 1% of spot
+    if "atr_14" in dir_feats.columns and len(dir_feats) > 0:
+        daily_expected_move = float(dir_feats["atr_14"].iloc[-1])
+    else:
+        daily_expected_move = float(nifty_df["Close"].iloc[-1]) * 0.01 if len(nifty_df) > 0 else 50.0
+
     daily_bias = {
         "logit": (nifty_df["ret_5d"].iloc[-1] * 100) if "ret_5d" in nifty_df.columns else 0,
-        "expected_move_points_today": 50.0
+        "expected_move_points_today": daily_expected_move
     }
     today_block = compute_today_direction(daily_bias, today_intraday_feats)
     
@@ -164,7 +170,17 @@ def build_seller_block(sel_feats, nifty, models) -> dict:
     breach_probs = compute_breach_probability_curve(spot, vol, SELLER_EXPIRY_HORIZON_DAYS, breach_model, sel_feats)
     seller_flag = compute_seller_flag(trap, expiry_stress)
     
-    historical_hit_rate = 0.72
+    # Dynamic historical hit rate based on VIX regime
+    # Higher VIX = lower hit rate for sellers
+    vix_level = float(sel_feats["Close_vix"].iloc[-1]) if len(sel_feats) > 0 and "Close_vix" in sel_feats.columns else 15.0
+    if vix_level < 12:
+        historical_hit_rate = 0.82  # Very easy environment
+    elif vix_level < 18:
+        historical_hit_rate = 0.72  # Normal
+    elif vix_level < 25:
+        historical_hit_rate = 0.65  # Harder
+    else:
+        historical_hit_rate = 0.55  # Dangerous
     
     return {
         "safe_range": safe_range,
@@ -197,7 +213,15 @@ def build_buyer_block(buy_feats, gamma_feats, intraday_df, nifty, models) -> dic
     regime = infer_buyer_regime(buy_feats) if len(buy_feats) > 0 else "CHOPPY"
     buyer_env = compute_buyer_environment(breakout_today, theta_edge, regime)
     
-    historical_spike_rate = 0.58
+    # Dynamic spike rate based on trend strength (ret_5d)
+    # Strong trends = higher spike success rate
+    trend_strength = abs(float(buy_feats["ret_5d"].iloc[-1])) if len(buy_feats) > 0 and "ret_5d" in buy_feats.columns else 0.0
+    if trend_strength > 0.03: # >3% move in 5 days
+        historical_spike_rate = 0.65
+    elif trend_strength > 0.01:
+        historical_spike_rate = 0.58
+    else:
+        historical_spike_rate = 0.45 # Chop
     
     return {
         "breakout_today": breakout_today,

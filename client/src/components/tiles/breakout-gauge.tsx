@@ -7,7 +7,7 @@ interface BreakoutGaugeProps {
   testId: string;
 }
 
-const helpText = "Breakout Potential measures today's probability of significant price movement beyond normal ranges. LOW (<40): theta decay dominates, avoid buying options. MODERATE (40-70): edge exists but selective. HIGH (>70): strong breakout setup, favorable for option buyers willing to pay premium.";
+const helpText = "• Today's Breakout Probability: Chance of big move beyond normal range.\n• LOW (<40): Theta decay dominates (Avoid buying options).\n• MODERATE (40-70): Edge exists (Be selective).\n• HIGH (>70): Strong setup (Favorable for buyers).";
 
 export function BreakoutGauge({ data, testId }: BreakoutGaugeProps) {
   const { score: rawScore, label } = data.breakout_today;

@@ -480,11 +480,46 @@ def get_latest_values() -> dict:
     """
     nifty, vix = get_market_snapshots()
     
+    # Use live price for latest values to ensure real-time accuracy
+    # (Daily history often lags by one day for VIX in yfinance)
+    latest_spot = get_live_price(NIFTY_SYMBOL)
+    latest_vix = get_live_price(VIX_SYMBOL)
+    
+    # Fallback to daily close if live fetch fails
+    if latest_spot is None:
+        latest_spot = float(nifty["Close"].iloc[-1])
+    if latest_vix is None:
+        latest_vix = float(vix["Close"].iloc[-1])
+        
+    # Determine previous close
+    # If daily data includes today (market closed and data updated), prev is iloc[-2]
+    # If daily data is up to yesterday, prev is iloc[-1]
+    
+    today = datetime.now().date()
+    
+    if not nifty.empty:
+        nifty_last_date = nifty.index[-1].date()
+        if nifty_last_date >= today:
+            prev_spot = float(nifty["Close"].iloc[-2])
+        else:
+            prev_spot = float(nifty["Close"].iloc[-1])
+    else:
+        prev_spot = 0.0
+
+    if not vix.empty:
+        vix_last_date = vix.index[-1].date()
+        if vix_last_date >= today:
+            prev_vix = float(vix["Close"].iloc[-2])
+        else:
+            prev_vix = float(vix["Close"].iloc[-1])
+    else:
+        prev_vix = 0.0
+
     return {
-        "latest_spot": float(nifty["Close"].iloc[-1]),
-        "prev_spot": float(nifty["Close"].iloc[-2]),
-        "latest_vix": float(vix["Close"].iloc[-1]),
-        "prev_vix": float(vix["Close"].iloc[-2]),
+        "latest_spot": latest_spot,
+        "prev_spot": prev_spot,
+        "latest_vix": latest_vix,
+        "prev_vix": prev_vix,
     }
 
 

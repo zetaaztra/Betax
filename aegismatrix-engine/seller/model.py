@@ -190,7 +190,10 @@ def compute_breach_probability_curve(spot: float, vol: float, horizon_days: int 
     if model is None or features_df is None:
         T = horizon_days / 252.0
         sigma_T = vol * math.sqrt(T)
-        distances = [100, 200, 300, 400]
+        # Use percentages of spot for dynamic distances
+        pct_distances = [0.005, 0.01, 0.015, 0.02] # 0.5%, 1%, 1.5%, 2%
+        distances = [int(spot * p) for p in pct_distances]
+        
         results = []
         for dist in distances:
             dist_pct = dist / spot
@@ -226,6 +229,10 @@ def compute_breach_probability_curve(spot: float, vol: float, horizon_days: int 
         # Adjustment factor
         adj_factor = model_prob / (theoretical_base + 1e-6)
         adj_factor = np.clip(adj_factor, 0.5, 2.0) # Limit adjustment
+        
+        # Use percentages of spot for dynamic distances
+        pct_distances = [0.005, 0.01, 0.015, 0.02] # 0.5%, 1%, 1.5%, 2%
+        distances = [int(spot * p) for p in pct_distances]
         
         for dist in distances:
             dist_pct = dist / spot

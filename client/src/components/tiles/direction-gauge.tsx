@@ -9,13 +9,13 @@ interface DirectionGaugeProps {
 }
 
 const helpTexts: Record<string, string> = {
-  "Today Direction": "Shows the expected intraday direction for NIFTY based on current market conditions and technical analysis. UP indicates bullish momentum, DOWN indicates bearish pressure, NEUTRAL suggests range-bound movement. The expected move shows approximate points of movement.",
-  "Tomorrow (T+1)": "1-day ahead directional forecast. Helps plan overnight positions and next-day strategies.",
-  "Next 3 Days (T+3)": "3-day directional outlook. Useful for short-term swing trades and option expiry planning.",
-  "This Week (T+5)": "5-day weekly directional bias. Guides weekly option strategies and position sizing.",
-  "Next Week (T+10)": "10-day extended forecast. Helps identify medium-term trend alignment.",
-  "This Month (T+20)": "20-day monthly directional view. Supports monthly option selection and portfolio rebalancing.",
-  "Next Month (T+40)": "40-day long-term directional assessment. Assists with strategic positioning and risk management.",
+  "Today Direction": "• Intraday Bias: Expected NIFTY direction based on real-time momentum.\n• UP/DOWN: Bullish/Bearish pressure intensity.\n• Expected Move: Dynamic range based on current ATR volatility.",
+  "Tomorrow (T+1)": "• 1-Day Forecast: Plan overnight positions.\n• Conviction: Model confidence in the move.",
+  "Next 3 Days (T+3)": "• Swing Outlook: For short-term positioning.\n• Expiry Planning: Useful for weekly option expiry.",
+  "This Week (T+5)": "• Weekly Bias: Guide for weekly option strategies.\n• Trend Alignment: Check if weekly trend matches daily.",
+  "Next Week (T+10)": "• Medium-Term: Identify potential trend shifts.\n• Position Sizing: Adjust size based on conviction.",
+  "This Month (T+20)": "• Monthly View: For monthly option selection.\n• Macro Trend: Broader market direction.",
+  "Next Month (T+40)": "• Long-Term: Strategic portfolio positioning.\n• Risk Management: Hedge against major moves.",
 };
 
 export function DirectionGauge({ data, title, testId }: DirectionGaugeProps) {
@@ -52,7 +52,7 @@ export function DirectionGauge({ data, title, testId }: DirectionGaugeProps) {
             </div>
           </div>
         </div>
-        
+
         <div className="space-y-2">
           <div className="flex justify-between items-baseline">
             <span className="text-sm text-muted-foreground">Expected Move</span>
@@ -61,14 +61,14 @@ export function DirectionGauge({ data, title, testId }: DirectionGaugeProps) {
               <span className="text-sm ml-1">pts</span>
             </span>
           </div>
-          
+
           <div>
             <div className="flex justify-between items-baseline mb-1">
               <span className="text-xs text-muted-foreground">Conviction</span>
               <span className="text-sm font-semibold font-mono" data-testid={`text-conviction-${testId}`}>{convictionPercent}%</span>
             </div>
             <div className="h-2 bg-muted rounded-full overflow-hidden">
-              <div 
+              <div
                 className={`h-full ${data.direction === "UP" ? "bg-bullish" : data.direction === "DOWN" ? "bg-bearish" : "bg-neutral"}`}
                 style={{ width: `${convictionPercent}%` }}
                 data-testid={`bar-conviction-${testId}`}

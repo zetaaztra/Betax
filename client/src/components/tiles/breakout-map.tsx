@@ -6,7 +6,7 @@ interface BreakoutMapProps {
   testId: string;
 }
 
-const helpText = "Next 5-Day Breakout Map forecasts which upcoming days have highest breakout probability. Taller bars = better days to hold options. Use this for timing: if tomorrow scores low but D+3 scores high, consider waiting to enter positions or choose longer expiry to capture the higher-probability day.";
+const helpText = "• 5-Day Forecast: Identifies best days for option buying.\n• Taller Bars: Higher probability of big moves.\n• Timing: If tomorrow is low but D+3 is high, wait or buy longer expiry.\n• Use: Avoid low-probability days to save premium.";
 
 export function BreakoutMap({ data, testId }: BreakoutMapProps) {
   const breakoutData = data.breakout_next;

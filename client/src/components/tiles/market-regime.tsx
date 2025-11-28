@@ -8,12 +8,12 @@ interface MarketRegimeProps {
   testId: string;
 }
 
-const helpText = "Market Regime classifies current market conditions combining price action and volatility. LOW_VOL_BULL: stable uptrend (ideal for selling puts). HIGH_VOL_BULL: volatile rally (caution). LOW_VOL_BEAR: steady decline (sell calls carefully). HIGH_VOL_BEAR: panic selling (avoid aggressive shorts). SIDEWAYS: range-bound (iron condors, strangles). CHOPPY: unpredictable (reduce exposure).";
+const helpText = "• LOW_VOL_BULL: Stable uptrend (Sell puts safely).\n• HIGH_VOL_BULL: Volatile rally (Use caution).\n• LOW_VOL_BEAR: Steady decline (Sell calls carefully).\n• HIGH_VOL_BEAR: Panic selling (Avoid aggressive shorts).\n• SIDEWAYS: Range-bound (Iron condors, strangles).\n• CHOPPY: Unpredictable (Reduce exposure).";
 
 export function MarketRegime({ data, testId }: MarketRegimeProps) {
   const getRegimeDetails = () => {
     const regime = data.regime;
-    
+
     if (regime === "LOW_VOL_BULL") {
       return {
         label: "Low Vol Bull",
@@ -71,7 +71,7 @@ export function MarketRegime({ data, testId }: MarketRegimeProps) {
           {details.icon}
           <span className="text-xl font-bold" data-testid={`text-regime-${testId}`}>{details.label}</span>
         </div>
-        
+
         <div className="text-center">
           <div className="text-sm font-medium" data-testid={`text-regime-description-${testId}`}>{details.description}</div>
           <div className="text-xs text-muted-foreground mt-1">Current Market Classification</div>

@@ -6,7 +6,7 @@ interface GammaWindowsProps {
   testId: string;
 }
 
-const helpText = "Gamma Burst Windows identifies intraday time blocks when sharp price moves are most likely based on historical patterns and scheduled events. Bright colors = high-probability spike windows. Use this for day trading options: enter positions before hot windows, exit before cool periods to maximize gamma gains.";
+const helpText = "• Spike Windows: Time blocks with high probability of sharp moves.\n• Bright Colors: High Gamma Potential.\n• Strategy: Enter before hot windows, exit before cool periods.\n• Goal: Maximize gamma gains, minimize chop.";
 
 export function GammaWindows({ data, testId }: GammaWindowsProps) {
   const windows = data.gamma_windows.map((w: any) => ({ ...w, score: w.score * 100 }));

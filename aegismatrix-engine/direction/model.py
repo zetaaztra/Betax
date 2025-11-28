@@ -207,7 +207,7 @@ def predict_direction_horizons(features_df, models, horizons=DIRECTION_HORIZONS)
             expected_move = expected_move_base * time_factor
             
             # Decay conviction for longer horizons
-            horizon_conviction = max(0.34, conviction * (1 - np.log(h)/10)) # Simple decay
+            horizon_conviction = max(0.1, conviction * (1 - np.log(h)/10)) # Simple decay
             
             results[f"t{h}"] = {
                 "direction": direction,

@@ -6,11 +6,11 @@ interface RiskScoreDialProps {
   testId: string;
 }
 
-const helpText = "Overall directional risk score combines multiple factors: volatility, trend strength, breadth, and technical indicators. Lower scores (0-0.3) suggest stable conditions. Medium (0.3-0.6) indicates moderate uncertainty. High (0.6-1.0) warns of elevated risk requiring defensive positioning.";
+const helpText = "• Risk Score: Composite metric of market stability.\n• Low (0-0.3): Stable (Aggressive strategies okay).\n• Medium (0.3-0.6): Moderate Uncertainty (Caution).\n• High (0.6-1.0): Elevated Risk (Defensive positioning).";
 
 export function RiskScoreDial({ score, testId }: RiskScoreDialProps) {
   const percentage = Math.round(score * 100);
-  
+
   const getLevel = () => {
     if (score < 0.3) return { label: "Low Risk", color: "text-bullish", stroke: "stroke-bullish" };
     if (score < 0.6) return { label: "Moderate Risk", color: "text-neutral", stroke: "stroke-neutral" };

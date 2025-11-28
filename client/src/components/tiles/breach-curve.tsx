@@ -6,7 +6,7 @@ interface BreachCurveProps {
   testId: string;
 }
 
-const helpText = "Range Breach Curve plots probability of NIFTY moving X points away from current spot before expiry. Steeper curve = lower breach risk (good for sellers). Flatter curve = higher breach probability (risky). Use this to size your strikes: sell further OTM if curve is steep, closer if flat for balanced risk.";
+const helpText = "• Breach Risk: Probability of NIFTY hitting X points away.\n• Steep Curve: Low risk (Good for selling OTM).\n• Flat Curve: High risk (Market expects big move).\n• Action: Sell strikes where curve is steepest.";
 
 export function BreachCurve({ data, testId }: BreachCurveProps) {
   const breachData = data.breach_probabilities;

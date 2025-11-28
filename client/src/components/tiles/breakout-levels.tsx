@@ -8,12 +8,12 @@ interface BreakoutLevelsProps {
   testId: string;
 }
 
-const helpText = "Breakout Reference Levels identify key price zones for option entry. Above upper level = breakout upside territory (buy calls). Below lower level = breakdown zone (buy puts). Between levels = no clear edge, wait. Use these as triggers rather than buying prematurely and bleeding theta.";
+const helpText = "• Key Zones: Price levels for option entry.\n• Above Upper: Breakout Zone (Buy Calls).\n• Below Lower: Breakdown Zone (Buy Puts).\n• Between: No Edge (Wait/Avoid Theta Decay).";
 
 export function BreakoutLevels({ buyer, market, testId }: BreakoutLevelsProps) {
   const { upper, lower } = buyer.breakout_levels;
   const spot = market.spot;
-  
+
   const upperDiff = upper - spot;
   const lowerDiff = spot - lower;
 

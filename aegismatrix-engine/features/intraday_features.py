@@ -80,13 +80,16 @@ def build_gamma_window_features(intraday: pd.DataFrame) -> list[dict]:
     """
     intraday = intraday.copy()
     
-    # Only consider trading hours: 09:15 to 15:30
-    # Typical 5m candles: ~75 candles per day
+    # Only consider trading hours: 09:15 to 15:30 (6 hours 15 min)
+    # Split into meaningful windows based on typical market behavior
     
     windows = [
-        ("09:45", "10:15", 6),  # First 30 min candles (index 0-5, 6-11, etc)
-        ("10:15", "10:45", 6),
-        ("14:30", "15:15", 9),  # Last windows
+        ("09:15-09:45", 0, 6),    # Opening 30 min (most volatile)
+        ("09:45-10:45", 6, 12),   # Morning continuation (1 hour)
+        ("10:45-12:00", 18, 15),  # Late morning (1h 15min)
+        ("12:00-14:00", 33, 24),  # Afternoon lull (2 hours)
+        ("14:00-15:00", 57, 12),  # Pre-closing (1 hour)
+        ("15:00-15:30", 69, 6),   # Final push (30 min)
     ]
     
     intraday["ret"] = intraday["Close"].pct_change()
@@ -94,12 +97,8 @@ def build_gamma_window_features(intraday: pd.DataFrame) -> list[dict]:
     
     results = []
     
-    # Simple window slicing (assumes ~12 candles per hour for 5m)
-    window_size = 6  # 30 min in 5m candles
-    
-    for i, (start_time, end_time, offset) in enumerate(windows):
-        start_idx = i * window_size
-        end_idx = start_idx + window_size
+    for label, start_idx, num_candles in windows:
+        end_idx = start_idx + num_candles
         
         if end_idx <= len(intraday):
             window_data = intraday.iloc[start_idx:end_idx]
@@ -109,7 +108,7 @@ def build_gamma_window_features(intraday: pd.DataFrame) -> list[dict]:
             score = min(1.0, window_vol / (session_vol + 1e-6))
             
             results.append({
-                "window": f"{start_time}-{end_time}",
+                "window": label,
                 "score": float(score)
             })
     

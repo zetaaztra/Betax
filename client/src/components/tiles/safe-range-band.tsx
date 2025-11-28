@@ -7,7 +7,7 @@ interface SafeRangeBandProps {
   testId: string;
 }
 
-const helpText = "Safe Short Range shows price levels where selling options (strangles, iron condors) has historically favorable risk/reward. The band represents zones where NIFTY is likely to stay until expiry based on statistical analysis. Selling outside this range increases breach risk. Center marker shows current spot price.";
+const helpText = "• Safe Zone: Ideal range for selling options (Strangles/Condors).\n• Logic: Statistical probability of NIFTY staying inside.\n• Risk: Selling outside increases breach risk.\n• Center: Current Spot Price.";
 
 export function SafeRangeBand({ seller, market, testId }: SafeRangeBandProps) {
   const { lower, upper } = seller.safe_range;
@@ -36,7 +36,7 @@ export function SafeRangeBand({ seller, market, testId }: SafeRangeBandProps) {
         <div className="relative">
           <div className="h-12 bg-muted rounded-lg relative overflow-hidden">
             <div className="absolute inset-y-0 left-0 right-0 bg-bullish/20" />
-            <div 
+            <div
               className="absolute top-1/2 -translate-y-1/2 w-1 h-full bg-foreground"
               style={{ left: `${spotPosition}%` }}
             />
