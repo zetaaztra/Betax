@@ -11,6 +11,20 @@ const helpText = "• Breach Risk: Probability of NIFTY hitting X points away.\n
 export function BreachCurve({ data, testId }: BreachCurveProps) {
   const breachData = data.breach_probabilities;
 
+  // Find min/max for dynamic scaling
+  const probs = breachData.map(d => d.probability);
+  const minProb = Math.min(...probs);
+  const maxProb = Math.max(...probs);
+  const range = maxProb - minProb || 0.01; // Avoid division by zero
+
+  // Scale probabilities to use full height
+  // Higher probability = higher on chart (more risk)
+  const scaleProb = (p: number) => {
+    // Normalize to 0-1, then scale to 0-110 (slight extra for visual clarity)
+    const normalized = (p - minProb) / range;
+    return normalized * 110;
+  };
+
   return (
     <TileWrapper title="Range Breach Curve" helpText={helpText} testId={testId}>
       <div className="space-y-4">
@@ -24,9 +38,9 @@ export function BreachCurve({ data, testId }: BreachCurveProps) {
             </defs>
 
             <path
-              d={`M 0 ${125 - breachData[0].probability * 100} ${breachData.map((d, i) => {
+              d={`M 0 ${125 - scaleProb(breachData[0].probability)} ${breachData.map((d, i) => {
                 const x = (i / (breachData.length - 1)) * 300;
-                const y = 125 - d.probability * 100;
+                const y = 125 - scaleProb(d.probability);
                 return `L ${x} ${y}`;
               }).join(" ")} L 300 125 L 0 125 Z`}
               fill="url(#breachGradient)"
@@ -36,14 +50,16 @@ export function BreachCurve({ data, testId }: BreachCurveProps) {
 
             {breachData.map((d, i) => {
               const x = (i / (breachData.length - 1)) * 300;
-              const y = 120 - d.probability * 100;
+              const y = 125 - scaleProb(d.probability);
               return (
                 <circle
                   key={i}
                   cx={x}
                   cy={y}
-                  r="3"
+                  r="4"
                   fill="hsl(var(--bearish))"
+                  stroke="white"
+                  strokeWidth="1"
                 />
               );
             })}

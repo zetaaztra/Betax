@@ -6,7 +6,7 @@ interface BreakoutMapProps {
   testId: string;
 }
 
-const helpText = "• 5-Day Forecast: Identifies best days for option buying.\n• Taller Bars: Higher probability of big moves.\n• Timing: If tomorrow is low but D+3 is high, wait or buy longer expiry.\n• Use: Avoid low-probability days to save premium.";
+const helpText = "• Numbers show breakout chance out of 100.\n• Below 5: Very low (choppy market, avoid buying options).\n• 5-20: Low-Moderate (selective buying only).\n• 20-50: Moderate (decent setup for buyers).\n• Above 50: High (strong breakout potential).\n• Strategy: Only buy options on days with score >20.";
 
 export function BreakoutMap({ data, testId }: BreakoutMapProps) {
   const breakoutData = data.breakout_next;
@@ -67,7 +67,7 @@ export function BreakoutMap({ data, testId }: BreakoutMapProps) {
         </div>
 
         <div className="text-center text-xs text-muted-foreground">
-          Score represents breakout probability (0-100)
+          Breakout probability (0-100 scale)
         </div>
       </div>
     </TileWrapper>
